@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ONB-001",
+    "title": "Linux privileged account onboarding identity checks",
+    "category": "onboarding",
+    "platform": "Linux",
+    "content": "Synthetic training article; not official vendor guidance. For a newly onboarded Linux privileged account, confirm the recorded server identifier, hostname, account name, and account purpose with the approved inventory. Check whether it is a local or centrally managed account and whether the selected account configuration matches that type. A mismatch is a possible cause, not a confirmed diagnosis. Do not retrieve or display credentials.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-002",
+    "title": "Onboarding connectivity checks",
+    "category": "onboarding",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Review whether the PAM management service can reach the intended target using the approved protocol and port. Inspect existing connection errors, DNS records, firewall rules, and service availability with the responsible team. Distinguish name-resolution failures, timeouts, and authentication failures. Do not change network rules during investigation.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-003",
+    "title": "Onboarding ownership and permissions",
+    "category": "onboarding",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Confirm the account owner, approved purpose, and expected permissions before treating onboarding as complete. Review the approved account configuration and access restrictions. Missing ownership or an unapproved privilege requirement needs clarification with the security team; do not grant additional privileges as a troubleshooting shortcut.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-004",
+    "title": "Password rotation configuration after Linux onboarding",
+    "category": "onboarding",
+    "platform": "Linux",
+    "content": "Synthetic training article; not official vendor guidance. When Linux password rotation fails shortly after onboarding, compare the recorded account type, target address, selected platform configuration, rotation schedule, and management status with the approved onboarding record. Check whether initial validation succeeded and whether password management was enabled as intended. Configuration inconsistencies require owner review; do not assume onboarding success proves rotation will work.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-005",
+    "title": "Duplicate and incomplete onboarding records",
+    "category": "onboarding",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Search approved inventory records for duplicate entries for the same target and account. Compare ownership, management status, and configuration dates. An incomplete or duplicate record can make it unclear which configuration is active. Gather evidence and ask the owner to confirm the intended record; do not delete or merge records during investigation.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-001",
+    "title": "Investigating Linux password rotation failures after onboarding",
+    "category": "password_rotation",
+    "platform": "Linux",
+    "content": "Synthetic training article; not official vendor guidance. For a recently onboarded Linux privileged account with failing password rotation, collect the failure timestamp, sanitized error message, target identifier, account identifier, and initial validation result. Compare onboarding and first rotation timestamps. Review target identity, platform configuration, connectivity, account state, permissions, password policy, and dependencies before selecting a cause. These are possible checks, not proof of a diagnosis. Never include passwords in tickets.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-002",
+    "title": "Linux password rotation authentication and permission checks",
+    "category": "password_rotation",
+    "platform": "Linux",
+    "content": "Synthetic training article; not official vendor guidance. If a Linux password rotation error indicates authentication or authorization failure, review sanitized authentication logs and the account state at the failure time. Check whether the account was locked, disabled, expired, or restricted from the configured access method. Compare required password-change permissions with approved permissions. Do not test credentials repeatedly, unlock accounts, or elevate privileges without approval.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-003",
+    "title": "Password rotation rejected by target policy",
+    "category": "password_rotation",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. When a password rotation attempt is rejected by the target password policy, compare the sanitized error with documented target requirements for length, complexity, history, and minimum age. Check whether the PAM password policy configuration matches those requirements. A policy mismatch is only a hypothesis until the error and configuration support it. Never log a generated password or weaken policy during investigation.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-004",
+    "title": "Linux password rotation network and target availability",
+    "category": "password_rotation",
+    "platform": "Linux",
+    "content": "Synthetic training article; not official vendor guidance. For a Linux password rotation timeout or connection failure, correlate the failure timestamp with target availability and existing network monitoring. Review the configured hostname, approved protocol and port, DNS resolution, and firewall path from the management service. Connectivity findings alone do not establish an authentication problem. Ask the responsible team to validate the path without changing access controls.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-005",
+    "title": "Password rotation dependencies and escalation evidence",
+    "category": "password_rotation",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Check whether applications, services, or scheduled jobs depend on the privileged account when investigating a password rotation incident. Review the documented dependency inventory and recent approved changes. Do not manually reset a password or restart dependent services. If evidence is insufficient, escalate with sanitized errors, timestamps, affected identifiers, configuration summaries, and checks already completed; omit credentials and session tokens.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-001",
+    "title": "Custom web connector page changes",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. If a custom web connector stops locating a login field or button, compare the current application page structure with the documented connector expectations. Review sanitized screenshots and recent approved application changes in a test environment. Changed element identifiers or labels are possible explanations. Do not invent selectors or modify a production connector during investigation.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-002",
+    "title": "Custom web connector redirects and sessions",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. For a custom web connector that reaches an unexpected page, review the approved entry URL, redirect sequence, session expiry behavior, and sanitized execution logs. Confirm which page was reached before the failure. Do not capture cookies, session tokens, or credentials in troubleshooting artifacts. Request documented application behavior if the expected flow is unknown.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-003",
+    "title": "Custom web connector MFA and interactive challenges",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. When a custom web connector encounters multi-factor authentication, a CAPTCHA, or an interactive approval, determine whether the documented integration supports that step. Capture only a sanitized description of the challenge and the stage where execution stopped. Do not bypass authentication controls. Escalate to the application and security owners if the supported integration flow is unclear.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-004",
+    "title": "Custom web connector timing and loading failures",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. If a custom web connector fails intermittently while a page loads, compare sanitized execution timestamps with application latency and the documented connector waiting behavior. Check whether an expected element was present at the failure stage. Slow loading is a hypothesis, not confirmation. Do not prescribe undocumented timeout values; use an approved test environment for further investigation.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-005",
+    "title": "Custom web connector password-change confirmation",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. If a custom web connector submits a password-change form but reports failure, inspect sanitized errors and the documented success indicator. Distinguish a form rejection from a missing confirmation step. Confirm the expected workflow with application documentation; do not assume a submitted form means the password changed. Escalate uncertain outcomes without displaying or repeatedly testing passwords.",
+    "source_type": "synthetic"
+  }
+]

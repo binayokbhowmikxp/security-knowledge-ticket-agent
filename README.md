@@ -67,7 +67,7 @@ For example, a ticket might ask: "Password rotation failed for a Linux privilege
 
 ## Current Status
 
-The repository currently contains the course starter's setup smoke-test notebook and a minimal RAG (retrieval-augmented generation) notebook using example data. The security workflows, tools, project-specific retrieval, and evaluation are planned and have not yet been implemented. The starter notebooks have not yet been verified for this project.
+The repository contains the course starter's setup smoke-test notebook and a first PAM RAG (retrieval-augmented generation) notebook using 15 synthetic knowledge articles and minsearch. The RAG notebook includes a representative troubleshooting query and citation checks. The tool-calling agent, asset and historical-ticket tools, and full evaluation remain planned.
 
 The MVP will use only permitted public documentation and synthetic asset records and tickets. It will not access real customer data or credentials, connect to live vendor systems, or change accounts or passwords.
 
@@ -96,4 +96,4 @@ The MVP will use only permitted public documentation and synthetic asset records
 
 ## Data
 
-The `data/` folder is currently empty. Planned project data will include permitted public documentation and synthetic asset records and support tickets. See `notebooks/02-rag.ipynb` for the starter's data-loading example.
+`data/pam_knowledge.json` contains 15 synthetic training articles covering account onboarding, password rotation failures, and custom web connector troubleshooting. These are not official vendor guidance or validated production procedures. See `notebooks/02-rag.ipynb` for loading and querying them. Permitted public documentation, synthetic asset records, and historical tickets remain future additions.
