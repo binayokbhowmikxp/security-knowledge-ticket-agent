@@ -4,7 +4,57 @@ A planned read-only assistant for evidence-grounded Privileged Access Management
 
 ## The Problem
 
-Enterprise security engineers and PAM support teams often need to investigate issues using scattered documentation, asset details, and past support cases. Finding reliable evidence is especially difficult for engineers who are new to an environment.
+Modern organizations rely on hundreds or thousands of servers, databases, applications, and cloud services to run their business. Many of these systems use privileged accounts — accounts with elevated permissions that can perform sensitive operations, such as administering servers, managing databases, or accessing critical infrastructure.
+
+Privileged Access Management (PAM) solutions, such as CyberArk, help organizations secure and manage these powerful accounts. They provide capabilities such as credential management, password rotation, privileged session monitoring, and controlled access to critical systems.
+
+However, managing and troubleshooting a PAM environment can be challenging.
+
+### The Knowledge Problem
+
+In a large enterprise, technical knowledge is often scattered across multiple sources:
+
+- Vendor documentation: Product configurations, integration guides, troubleshooting procedures, and best practices.
+- Internal knowledge bases: Organization-specific instructions, security policies, and onboarding procedures.
+- Environment information: Details about servers, applications, databases, privileged accounts, and their configurations.
+- Historical support tickets: Previously encountered issues, investigations, and resolutions.
+- Custom integrations: Documentation for application-specific connectors and configurations.
+
+Although this information may already exist, finding the right information at the right time is often difficult.
+
+Experienced engineers may know exactly where to look, while newer engineers may spend hours or even days searching documentation, consulting colleagues, and investigating issues.
+
+### A Real-World Example
+
+Imagine a security engineer receives the following support ticket:
+
+> "The automated password rotation for a privileged account on a Linux server has failed. Please investigate."
+
+Before recommending a solution, the engineer may need to:
+
+1. Identify the affected server and privileged account.
+2. Understand how the account is configured in the PAM system.
+3. Locate the relevant vendor troubleshooting documentation.
+4. Search for similar incidents and their previous resolutions.
+5. Identify possible causes and determine appropriate troubleshooting steps.
+
+Completing this investigation can require searching multiple systems and manually connecting information from different sources.
+
+### Why This Matters
+
+Inefficient knowledge discovery and troubleshooting can lead to:
+
+- Longer incident investigation and resolution times.
+- Increased dependency on experienced engineers.
+- Repeated investigations of previously encountered problems.
+- Inconsistent troubleshooting approaches.
+- Delays in supporting business-critical systems.
+
+This project aims to reduce the time engineers spend searching for information and investigating common PAM issues.
+
+It will explore how Retrieval-Augmented Generation (RAG) and tool-calling AI agents can bring relevant knowledge together, investigate support tickets, and provide evidence-backed troubleshooting guidance.
+
+The system is intended to assist engineers, not replace their judgment or automatically modify critical infrastructure.
 
 ## Planned Workflows
 
