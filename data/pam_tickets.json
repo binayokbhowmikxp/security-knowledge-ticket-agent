@@ -1,0 +1,83 @@
+[
+  {
+    "ticket_id": "TKT-001",
+    "issue_summary": "Linux password rotation failed shortly after onboarding",
+    "category": "password_rotation",
+    "related_asset": "LNX-001",
+    "investigation_findings": "Historical snapshot: selected account configuration differed from approved local-account record.",
+    "documented_outcome": "Owner corrected configuration in a separate approved change; subsequent historical validation passed. Current failure has no collected error and is not diagnosed.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-002",
+    "issue_summary": "Linux password rotation authentication failure",
+    "category": "password_rotation",
+    "related_asset": "LNX-003",
+    "investigation_findings": "Sanitized historical logs showed an account restriction at the failure timestamp.",
+    "documented_outcome": "Owner reviewed the restriction through the approved process; historical follow-up succeeded.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-003",
+    "issue_summary": "Linux password rotation timeout",
+    "category": "password_rotation",
+    "related_asset": "LNX-003",
+    "investigation_findings": "Historical monitoring showed target unavailable during rotation.",
+    "documented_outcome": "Target owner restored availability through an approved change; later rotation succeeded.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-004",
+    "issue_summary": "Linux privileged account onboarding incomplete",
+    "category": "onboarding",
+    "related_asset": "LNX-002",
+    "investigation_findings": "Account ownership approval was missing from the onboarding record.",
+    "documented_outcome": "Owner supplied approval; onboarding review resumed.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-005",
+    "issue_summary": "Duplicate privileged account onboarding record",
+    "category": "onboarding",
+    "related_asset": "WIN-001",
+    "investigation_findings": "Two inventory entries referred to the same synthetic account.",
+    "documented_outcome": "Owner identified intended record through approved inventory review.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-006",
+    "issue_summary": "Custom web connector login element missing",
+    "category": "web_connector",
+    "related_asset": "APP-001",
+    "investigation_findings": "Sanitized test screenshots showed a changed application element label.",
+    "documented_outcome": "Connector owner updated the test configuration through an approved change and validated it.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-007",
+    "issue_summary": "Custom web connector unexpected redirect",
+    "category": "web_connector",
+    "related_asset": "APP-002",
+    "investigation_findings": "Historical execution reached an expired-session page.",
+    "documented_outcome": "Application owner documented expected session flow; approved test validation completed.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-008",
+    "issue_summary": "Custom web connector interactive challenge",
+    "category": "web_connector",
+    "related_asset": "APP-003",
+    "investigation_findings": "Historical test encountered an interactive challenge unsupported by the documented integration.",
+    "documented_outcome": "Escalated to application and security owners; no bypass attempted.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-009",
+    "issue_summary": "Password rotation rejected by target policy",
+    "category": "password_rotation",
+    "related_asset": "WIN-001",
+    "investigation_findings": "Historical sanitized error indicated minimum password age rejection.",
+    "documented_outcome": "Owner aligned the approved schedule after policy review; historical validation passed.",
+    "source_type": "synthetic"
+  }
+]

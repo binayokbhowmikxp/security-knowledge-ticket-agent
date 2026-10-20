@@ -67,7 +67,7 @@ For example, a ticket might ask: "Password rotation failed for a Linux privilege
 
 ## Current Status
 
-The repository contains the course starter's setup smoke-test notebook and a first PAM RAG (retrieval-augmented generation) notebook using 15 synthetic knowledge articles and minsearch. The RAG notebook includes a representative troubleshooting query and citation checks. The tool-calling agent, asset and historical-ticket tools, and full evaluation remain planned.
+The repository contains setup and Week 1 RAG notebooks, plus a Week 2 agent notebook using the OpenAI Responses API. One agent dynamically selects among three read-only tools over 15 synthetic knowledge articles, 7 synthetic assets, and 9 historical tickets. The agent notebook includes concise traces and three live smoke scenarios; offline regression tests cover validation, missing evidence, conversation handling, and loop limits. Full labelled evaluation remains planned.
 
 The MVP will use only permitted public documentation and synthetic asset records and tickets. It will not access real customer data or credentials, connect to live vendor systems, or change accounts or passwords.
 
@@ -93,7 +93,20 @@ The MVP will use only permitted public documentation and synthetic asset records
 
 - `notebooks/01-setup.ipynb` - smoke test that confirms your environment works
 - `notebooks/02-rag.ipynb` - a minimal RAG baseline you can adapt to your own data
+- `notebooks/03-agent.ipynb` - the self-contained read-only agent, tool definitions, tracing, and live smoke tests
+
+Run `03-agent.ipynb` from first cell to last using the project's `.venv` kernel, with Jupyter launched from the repository root or `notebooks/`. Its final code cell makes paid API calls using the existing `.env` configuration and defaults to `gpt-4o-mini`. API errors propagate rather than producing simulated answers. Notebook outputs are cleared in the repository.
+
+Run offline tests without API requests:
+
+```sh
+.venv/bin/python -m unittest discover -s tests -v
+```
+
+Week 1 always retrieves documents and then calls the model. Week 2 lets the model request documentation, asset details, or prior tickets, read their results, and request more evidence before answering. The loop allows at most six model turns and eight tool calls per turn. Tools use only local JSON data; no new dependencies are needed. Traces show argument lengths and returned IDs without printing raw query text.
 
 ## Data
 
-`data/pam_knowledge.json` contains 15 synthetic training articles covering account onboarding, password rotation failures, and custom web connector troubleshooting. These are not official vendor guidance or validated production procedures. See `notebooks/02-rag.ipynb` for loading and querying them. Permitted public documentation, synthetic asset records, and historical tickets remain future additions.
+`data/pam_knowledge.json` contains 15 synthetic training articles covering account onboarding, password rotation failures, and custom web connector troubleshooting. `data/pam_assets.json` contains 7 synthetic inventory records; `data/pam_tickets.json` contains 9 synthetic historical cases. None are official vendor guidance or validated production procedures. Historical outcomes do not confirm the cause of a current incident. Permitted public documentation remains a future addition.
+
+Search uses minsearch word matching, without embeddings. Citation checks confirm that cited IDs were returned by a tool; they do not establish that every claim is supported. Model tool choices and answer quality still require review against the records. See `notebooks/03-agent.ipynb` for the three tools and live examples.
