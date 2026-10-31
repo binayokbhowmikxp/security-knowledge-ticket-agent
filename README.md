@@ -110,3 +110,59 @@ Week 1 always retrieves documents and then calls the model. Week 2 lets the mode
 `data/pam_knowledge.json` contains 15 synthetic training articles covering account onboarding, password rotation failures, and custom web connector troubleshooting. `data/pam_assets.json` contains 7 synthetic inventory records; `data/pam_tickets.json` contains 9 synthetic historical cases. None are official vendor guidance or validated production procedures. Historical outcomes do not confirm the cause of a current incident. Permitted public documentation remains a future addition.
 
 Search uses minsearch word matching, without embeddings. Citation checks confirm that cited IDs were returned by a tool; they do not establish that every claim is supported. Model tool choices and answer quality still require review against the records. See `notebooks/03-agent.ipynb` for the three tools and live examples.
+
+## Pytest scenario tests
+
+Install development dependencies with `uv sync --group dev`. Pytest provides plain
+`assert` tests and fixtures (shared test setup); it adds no runtime agent framework.
+
+```sh
+# Five scenarios; rotation runs in both tool-call orders. No API requests.
+uv run pytest tests/test_agent_scenarios.py -v
+# All pytest tests, including the original unittest cases; live is skipped.
+uv run pytest -q
+# Original 20 unittest regression tests only.
+uv run python -m unittest discover -s tests -v
+```
+
+`tests/test_agent_scenarios.py` is the suggested Question 2 submission file;
+`tests/conftest.py` and the existing `tests/test_agent_notebook.py` helpers are also
+required to run it. The five scenarios cover Linux onboarding, rotation with prior
+incidents, web connector investigation, an unknown asset, and insufficient evidence.
+
+The offline tests **predetermine model tool choices, search queries, and final
+answers**. They execute the real `run_agent()` loop and local tools, checking returned
+records, trace entries, tool-result `call_id` linkage, and citation membership. They
+do not measure genuine LLM tool selection or answer quality. Rotation is tested in
+both asset-first and tickets-first order; documentation search is optional for that
+scenario's missing-evidence answer.
+
+The `agent_namespace` fixture loads only tagged notebook definitions and synthetic
+data with `.env` loading disabled. The `tool_records` fixture observes actual tool
+arguments/results in memory while calling the original functions; it restores the
+function mapping after each test. This allows argument checks without weakening the
+production trace's redaction. Existing unittest helpers and tests are unchanged.
+
+To deliberately enable the paid live Scenario 2 integration test, configure your
+OpenAI key in `.env`, then run:
+
+```sh
+uv run pytest tests/test_agent_scenarios.py -m live --live -v --tb=short
+# Optionally save the redacted trace/evidence IDs as JUnit test properties:
+uv run pytest tests/test_agent_scenarios.py -m live --live -v --tb=short --junitxml=/tmp/pam-live-results.xml
+```
+
+The live test uses the actual model (the agent's default `gpt-4o-mini`), real tool
+choices, and the same rotation assertions as the offline test. It has a per-request
+60-second timeout and disables API retries; the agent still bounds model turns and
+may make one citation-revision request. Failures propagate. `--live` is required,
+including when using `-m live`; otherwise the test skips before client creation.
+Only the redacted trace and evidence IDs are recorded as report properties. Avoid
+`--showlocals` or debug logging when handling credentials or raw API responses.
+
+Citation membership, relevant search terms, uncertainty wording, and a few obvious
+unsafe command markers can be checked automatically. These are heuristics: human
+review must still assess every claim against the retrieved records, historical
+versus current causality, invented procedures, and authorization boundaries. A
+scripted safe answer passing is not evidence that the LLM will produce one. The
+live test is opt-in and was not run as part of this offline implementation.

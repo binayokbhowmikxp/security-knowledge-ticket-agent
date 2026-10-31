@@ -46,3 +46,13 @@ This file captures the conclusions of a longer ChatGPT project-selection intervi
 
 ## GitHub portfolio deliverables
 Clear README and setup instructions; architecture diagram; runnable code; synthetic test data; evaluation examples/results; meaningful tests; transparent limitations; optional Docker and demo.
+
+## Current testing increment
+
+Five pytest scenarios now exercise the real notebook agent and local tools using
+scripted model messages; rotation is checked in either tool-call order. These are
+offline Python contract tests, not measurements of LLM tool selection or grounding.
+An explicitly enabled `--live` rotation test exercises real OpenAI model choices;
+it is skipped by default. Citation and uncertainty checks remain heuristics, with
+claim-level factual support and safe recommendations requiring human review. The
+original unittest suite and production agent remain unchanged. See README for commands.
