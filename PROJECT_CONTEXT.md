@@ -59,12 +59,21 @@ original unittest suite and production agent remain unchanged. See README for co
 
 ## Incremental PydanticAI migration
 
-The intended agent framework is now PydanticAI, following the Buildcamp. The manual
+The intended agent framework is PydanticAI, following the Buildcamp. The manual
 Responses API notebook remains the working three-tool baseline during migration.
-The first prototype, `pam_agent_pydantic.py`, registers only `get_asset_details`
-with `@agent.tool_plain` on one PydanticAI Agent using `openai:gpt-4o-mini`.
-It uses the existing synthetic inventory and bounded framework execution. Offline
-FunctionModel tests execute the real tool; no live prototype API calls have been
-made. Citation validation, documentation retrieval, historical retrieval, and trace
-compatibility have not yet migrated. Shared lookup consolidation is the next step;
-the temporary duplicate tool preserves the existing notebook and regression tests.
+Phase 2 registers all three read-only tools on one `openai:gpt-4o-mini` Agent in
+`pam_agent_pydantic.py`, delegating real retrieval to reusable `pam_tools.py`.
+Shared retrieval preserves notebook fields, TF-IDF ranking, result limits,
+validation, missing-asset responses, and independent return objects. Cached
+synthetic data/indexes load lazily. The notebook retains its self-contained
+implementation temporarily to preserve teaching variables and tests; parity tests
+compare both implementations.
+
+The preserved `investigate_asset` entry point now supports all three workflows,
+validates questions up to 8,000 characters, and bounds runs to six model turns and
+eight total tool executions. Offline FunctionModel tests verify actual framework
+execution, result linkage, retrieval parity, validation, and budgets, not genuine
+LLM tool selection or grounding. No live PydanticAI calls have been made. Citation
+validation/revision and the redacted trace interface have not yet migrated; these
+are the next recommended increment before broader evaluation. No judge, Logfire,
+or other monitoring has been added.
