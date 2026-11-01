@@ -5,13 +5,16 @@ from pathlib import Path
 import pytest
 from pydantic_ai import models
 from pydantic_ai.exceptions import UsageLimitExceeded
-from pydantic_ai.messages import ModelResponse, TextPart, ToolCallPart, ToolReturnPart
+from pydantic_ai.messages import ModelRequest, ModelResponse, TextPart, ToolCallPart, ToolReturnPart
 from pydantic_ai.models.function import FunctionModel
+from pydantic_ai.usage import RequestUsage
 
 import pam_tools
 from pam_agent_pydantic import (
-    agent, get_asset_details, investigate_asset, search_documentation, search_past_tickets,
+    agent, get_asset_details, investigate_asset, investigate_with_evidence,
+    search_documentation, search_past_tickets,
 )
+from pam_evidence import DISCLAIMER, collect_evidence, summarize_result
 
 
 @pytest.fixture(autouse=True)
@@ -233,3 +236,220 @@ def test_tool_execution_budget_blocks_oversized_batch():
     with agent.override(model=FunctionModel(oversized_batch)):
         with pytest.raises(UsageLimitExceeded, match='tool_calls_limit of 8'):
             investigate_asset('Look up LNX-001 repeatedly.')
+
+
+# Phase 3: use actual framework histories; final prose is still predetermined.
+@pytest.fixture
+def evidence_run():
+    def run(requests, answer):
+        def model_function(messages, info):
+            returned = [part for message in messages for part in message.parts
+                        if isinstance(part, ToolReturnPart)]
+            if not returned:
+                parts = [ToolCallPart(name, arguments, tool_call_id=f'actual_call_{i}')
+                         for i, (name, arguments) in enumerate(requests)]
+                return ModelResponse(parts=parts, usage=RequestUsage(input_tokens=17, output_tokens=9))
+            return ModelResponse(parts=[TextPart(answer)],
+                                 usage=RequestUsage(input_tokens=31, output_tokens=13))
+        with agent.override(model=FunctionModel(model_function)):
+            raw = investigate_asset('PRIVATE_TEST_MARKER: investigate this synthetic case.')
+        return raw, summarize_result(raw)
+    return run
+
+
+def test_evidence_valid_documentation_citation(evidence_run):
+    raw, summary = evidence_run(
+        [('search_documentation', {'query': 'Linux privileged account onboarding'})],
+        DISCLAIMER + ' Compare approved identity records [ONB-001].',
+    )
+    assert 'ONB-001' in summary['evidence_ids']
+    assert summary['citation_issues'] == []
+    assert summary['citation_validation_passed'] is True
+    assert summary['trace'][0]['tool'] == 'search_documentation'
+    assert summary['trace'][0]['returned_ids'] == summary['evidence_ids']
+
+
+@pytest.mark.parametrize('reverse', [False, True], ids=['asset-first', 'tickets-first'])
+def test_evidence_multiple_sources_and_repeated_calls(evidence_run, reverse):
+    requests = [
+        ('get_asset_details', {'asset_id': 'LNX-001'}),
+        ('search_past_tickets', {'query': 'Linux rotation failed onboarding'}),
+        ('search_documentation', {'query': 'Linux rotation failed onboarding'}),
+        ('get_asset_details', {'asset_id': 'LNX-001'}),
+    ]
+    if reverse:
+        requests.reverse()
+    _, summary = evidence_run(requests, DISCLAIMER +
+        ' Failed rotation is recorded [LNX-001]. Historical mismatch is a comparison '
+        '[TKT-001], not proof of the current cause. Collect sanitized errors [ROT-001].')
+    assert {'LNX-001', 'TKT-001', 'ROT-001'} <= set(summary['evidence_ids'])
+    assert len(summary['evidence_ids']) == len(set(summary['evidence_ids']))
+    assert summary['citation_validation_passed'] is True
+    assert len(summary['trace']) == 4
+    assert sum(event['returned_ids'] == ['LNX-001'] for event in summary['trace']) == 2
+    assert [event['sequence'] for event in summary['trace']] == [1, 2, 3, 4]
+
+
+@pytest.mark.parametrize('answer,expected_issue', [
+    (DISCLAIMER + ' Invented guidance [ROT-999].', 'Unretrieved citations'),
+    (DISCLAIMER + ' Guidance without citations.', 'no bracketed citations'),
+    ('Inventory records failed rotation [LNX-001].', 'disclaimer'),
+    (DISCLAIMER + ' Invented source [SECRET-123].', 'format/category'),
+    (DISCLAIMER + ' Wrong-case source [lnx-001].', 'format/category'),
+    (DISCLAIMER + ' Wrong-length source [LNX-0001].', 'format/category'),
+])
+def test_evidence_reports_invalid_answers(evidence_run, answer, expected_issue):
+    raw, summary = evidence_run([('get_asset_details', {'asset_id': 'LNX-001'})], answer)
+    assert summary['citation_validation_passed'] is False
+    assert any(expected_issue in issue for issue in summary['citation_issues'])
+    assert raw.usage.requests == 2  # Detection never makes a revision request.
+    assert 'ROT-999' not in summary['evidence_ids']
+    assert 'SECRET-123' not in summary['evidence_ids']
+
+
+@pytest.mark.parametrize('omitted,label', [
+    ('[LNX-001]', 'current asset'), ('[TKT-001]', 'historical ticket'),
+    ('[ROT-001]', 'documentation'),
+])
+def test_each_retrieved_kind_requires_valid_citation(evidence_run, omitted, label):
+    requests = [('get_asset_details', {'asset_id': 'LNX-001'}),
+                ('search_past_tickets', {'query': 'Linux rotation failed onboarding'}),
+                ('search_documentation', {'query': 'Linux rotation failed onboarding'})]
+    answer = DISCLAIMER + ' Findings [LNX-001]. Comparison [TKT-001]. Check [ROT-001].'
+    _, summary = evidence_run(requests, answer.replace(omitted, ''))
+    assert summary['citation_validation_passed'] is False
+    assert any(label in issue for issue in summary['citation_issues'])
+
+
+@pytest.mark.parametrize('cite_missing', [False, True])
+def test_evidence_unknown_asset_is_not_a_source(evidence_run, cite_missing):
+    answer = DISCLAIMER + ' No synthetic inventory record exists for UNKNOWN-999.'
+    if cite_missing:
+        answer += ' [UNKNOWN-999]'
+    _, summary = evidence_run([('get_asset_details', {'asset_id': 'UNKNOWN-999'})], answer)
+    assert summary['evidence_ids'] == []
+    assert summary['trace'][0]['returned_ids'] == []
+    assert summary['trace'][0]['error'] == 'asset_not_found'
+    assert summary['citation_validation_passed'] is (not cite_missing)
+
+
+def test_evidence_empty_search_allows_uncited_missing_evidence(evidence_run):
+    _, summary = evidence_run([('search_documentation', {'query': 'zzzxxyyqq'})],
+                             DISCLAIMER + ' No supporting records; insufficient evidence.')
+    assert summary['evidence_ids'] == []
+    assert summary['trace'][0]['error'] is None
+    assert summary['citation_validation_passed'] is True
+
+
+def test_trace_excludes_private_content(evidence_run):
+    raw, summary = evidence_run(
+        [('search_documentation', {'query': 'PRIVATE_TEST_MARKER Linux onboarding'})],
+        DISCLAIMER + ' PRIVATE_TEST_MARKER: compare identity [ONB-001].',
+    )
+    # The private marker really exists in raw messages and the preserved answer.
+    assert 'PRIVATE_TEST_MARKER' in str(raw.all_messages())
+    assert 'PRIVATE_TEST_MARKER' in summary['answer']
+    trace_text = json.dumps(summary['trace'])
+    assert 'PRIVATE_TEST_MARKER' not in trace_text
+    assert 'Linux onboarding' not in trace_text
+    assert 'content' not in trace_text and 'arguments' not in trace_text
+    assert all(set(event) == {'sequence', 'tool', 'tool_call_id', 'returned_ids', 'error'}
+               for event in summary['trace'])
+    assert 'search_documentation' in trace_text and 'ONB-001' in trace_text
+
+
+def test_usage_is_derived_from_actual_framework_result(evidence_run):
+    raw, summary = evidence_run([('get_asset_details', {'asset_id': 'LNX-001'})],
+                             DISCLAIMER + ' Failed rotation [LNX-001]; cause unknown.')
+    assert summary['usage'] == {
+        'model_requests': raw.usage.requests,
+        'tool_calls': raw.usage.tool_calls,
+        'input_tokens': raw.usage.input_tokens,
+        'output_tokens': raw.usage.output_tokens,
+        'total_tokens': raw.usage.total_tokens,
+    }
+    assert summary['usage']['input_tokens'] == 48
+    assert summary['usage']['output_tokens'] == 22
+
+
+def test_high_level_entry_point_runs_once_without_revision():
+    def model_function(messages, info):
+        # An invalid answer must be preserved and reported, without a retry.
+        assert len(messages) == 1
+        return ModelResponse(parts=[TextPart(DISCLAIMER + ' Unsupported [ROT-999].')])
+    with agent.override(model=FunctionModel(model_function)):
+        summary = investigate_with_evidence('Investigate a synthetic case.')
+    assert summary['usage']['model_requests'] == 1
+    assert summary['citation_validation_passed'] is False
+    assert summary['evidence_ids'] == []
+    assert summary['trace'] == []
+
+
+def test_history_links_returns_by_id_not_position():
+    # Construct real framework message classes with deliberately reordered results.
+    messages = [ModelResponse(parts=[
+        ToolCallPart('get_asset_details', {}, tool_call_id='PRIVATE_TEST_MARKER'),
+        ToolCallPart('search_documentation', {}, tool_call_id='docs'),
+    ]), ModelRequest(parts=[
+        ToolReturnPart('search_documentation', [{'id': 'ROT-001'}], tool_call_id='docs'),
+        ToolReturnPart('get_asset_details', {'asset_id': 'LNX-001'},
+                       tool_call_id='PRIVATE_TEST_MARKER'),
+    ])]
+    ids, trace = collect_evidence(messages)
+    assert ids == ['LNX-001', 'ROT-001']
+    assert trace[0]['tool_call_id'] == 'call_2'
+    assert trace[1]['tool_call_id'] == 'call_1'
+    assert 'PRIVATE_TEST_MARKER' not in json.dumps(trace)
+
+
+@pytest.mark.parametrize('mode,expected_error', [
+    ('unmatched', 'unmatched_tool_return'), ('mismatch', 'tool_name_mismatch'),
+    ('failed', 'tool_failed'), ('retry', 'tool_retry'), ('error', 'tool_error'),
+])
+def test_failed_or_unlinked_returns_never_supply_evidence(mode, expected_error):
+    parts = [] if mode == 'unmatched' else [ToolCallPart(
+        'get_asset_details', {}, tool_call_id='call')]
+    returned = ToolReturnPart(
+        'search_documentation' if mode == 'mismatch' else 'get_asset_details',
+        {'asset_id': 'LNX-001', **({'error': 'PRIVATE_TEST_MARKER'} if mode == 'error' else {})},
+        tool_call_id='call',
+        outcome={'failed': 'failed', 'retry': 'retried'}.get(mode, 'success'),
+    )
+    ids, trace = collect_evidence([ModelResponse(parts=parts), ModelRequest(parts=[returned])])
+    assert ids == []
+    assert trace[0]['error'] == expected_error
+    assert 'PRIVATE_TEST_MARKER' not in json.dumps(trace)
+
+
+def test_high_level_summary_tracks_multiple_model_turns():
+    def model_function(messages, info):
+        returned = [part for message in messages for part in message.parts
+                    if isinstance(part, ToolReturnPart)]
+        if len(returned) < 2:
+            return ModelResponse(parts=[ToolCallPart(
+                'get_asset_details', {'asset_id': 'LNX-001'},
+                tool_call_id=f'asset_{len(returned)}',
+            )])
+        return ModelResponse(parts=[TextPart(DISCLAIMER +
+            ' Inventory records failed rotation [LNX-001]; cause unknown.')])
+    with agent.override(model=FunctionModel(model_function)):
+        summary = investigate_with_evidence('Look up LNX-001 for this synthetic case.')
+    assert summary['evidence_ids'] == ['LNX-001']
+    assert len(summary['trace']) == 2
+    assert all(event['returned_ids'] == ['LNX-001'] for event in summary['trace'])
+    assert summary['usage']['model_requests'] == 3
+    assert summary['usage']['tool_calls'] == 2
+    assert summary['citation_validation_passed'] is True
+
+
+def test_ambiguous_call_ids_do_not_supply_evidence():
+    messages = [ModelResponse(parts=[
+        ToolCallPart('get_asset_details', {}, tool_call_id='same'),
+        ToolCallPart('get_asset_details', {}, tool_call_id='same'),
+    ]), ModelRequest(parts=[
+        ToolReturnPart('get_asset_details', {'asset_id': 'LNX-001'}, tool_call_id='same'),
+    ])]
+    ids, trace = collect_evidence(messages)
+    assert ids == []
+    assert trace[0]['error'] == 'duplicate_call_id'
+    assert all(event['error'] is not None for event in trace)

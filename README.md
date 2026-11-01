@@ -202,9 +202,9 @@ These limits are not monetary caps or counts of SDK transport retries. Direct
 Instructions require documentation for guidance, current inventory for asset
 findings, historical tickets for comparisons, bracketed evidence IDs, synthetic
 labeling, and explicit uncertainty. Historical resolutions must not be used as
-proof of a current cause. The notebook's citation validator/revision and redacted
-trace interface have not yet migrated; prompt instructions alone do not enforce
-citation correctness or claim-level grounding.
+proof of a current cause. Phase 3 adds post-run citation validation and a redacted execution summary,
+described below. The notebook's automatic citation revision remains separate;
+no automatic correction call is made by the PydanticAI summary.
 
 The notebook retains its self-contained retrieval implementation in this increment
 because its indexes, loaded records, and helper variables remain part of existing
@@ -233,6 +233,69 @@ notebook, not PydanticAI.
 The prototype is ready for a deliberately authorized three-tool live smoke test
 using `investigate_asset`, with `OPENAI_API_KEY` supplied by the caller, followed by
 human review of messages and evidence. No real PydanticAI model calls have been
-made. Avoid printing raw messages in routine logs. Next, migrate citation checks
-and safe tracing, then consolidate notebook retrieval in a separately verified
-increment. No judge or monitoring is implemented.
+made. Avoid printing raw messages in routine logs. Next, review controlled live
+results before deciding whether to add bounded output validation/revision. Notebook
+retrieval consolidation remains a separate increment. No judge or monitoring is implemented.
+
+
+## Evidence validation and redacted tracing (Phase 3)
+
+`investigate_asset(question)` still returns the original PydanticAI
+`AgentRunResult[str]`. The new `investigate_with_evidence(question)` calls it once
+with the same limits, then returns a dictionary containing:
+
+- `answer`: the original, unredacted model answer, even if validation fails.
+- `evidence_ids`: unique IDs from successful, linked tool results.
+- `trace`: minimal redacted tool-result events.
+- `citation_issues`: actionable validation errors, or an empty list.
+- `citation_validation_passed`: explicitly false when any citation issue exists.
+- `usage`: actual model requests, tool calls, input/output tokens, and total tokens.
+
+`pam_evidence.py` inspects `result.all_messages()`. `ToolCallPart` describes a tool
+request; `ToolReturnPart` holds the actual result Python returned. Calls and results
+are linked by raw `tool_call_id` and matching tool name internally, independent of
+return order. Only successful returns from our three tools supply evidence: article
+`id`, inventory `asset_id`, or incident `ticket_id`. Failed/missing lookups, retries,
+unmatched returns, and empty searches supply no IDs. Repeated retrieval deduplicates
+evidence while retaining separate trace events. Source IDs are never extracted
+from the user prompt or final model prose.
+
+Validation checks the full opening synthetic-training disclaimer, bracketed source
+format, membership in retrieved evidence, and at least one valid citation for each
+retrieved evidence kind (documentation, current assets, historical tickets).
+It reports fabricated IDs, unknown source categories, wrong case/ID length, and
+grouped source IDs. It does not require a citation for a failed asset lookup. An
+uncited insufficient-evidence response can pass when no successful records exist.
+The conservative per-kind rule can flag an answer that omits irrelevant retrieved
+evidence; it does not decide which findings the answer actually uses. Recognition
+of malformed source-like brackets is heuristic, not a universal citation parser.
+
+A passing result is **citation-validated, not proven factually grounded**. Membership
+does not show that a source supports the adjacent claim, that every factual claim
+has a citation, that historical outcomes are interpreted correctly, or that an
+uncited answer honestly reflects missing evidence. Human review is still required.
+No automatic extra revision request is implemented. Inspect the boolean and issue
+list before presenting an answer; invalid answers are preserved for review.
+
+Trace events contain only sequence, an allowlisted tool name, a local call alias,
+returned source IDs, and a fixed error code. Actual call IDs are mapped to aliases
+like `call_1` because model-controlled IDs could contain private text. Sequence is
+message-history return order, not measured parallel execution timing. Unknown tool
+names and arbitrary error payloads are never copied. Queries, arguments, questions,
+record bodies, raw messages, and exceptions are excluded. **Only the trace and
+aggregate usage are intended for routine logging; the answer and raw result are
+not privacy-redacted.** No helper prints or sends data to an external backend.
+Execution exceptions still propagate normally; do not log arbitrary exception text.
+
+Usage comes from PydanticAI 2.64.0's `result.usage` property, not reconstructed
+message counts. Token metrics depend on provider reporting; FunctionModel tests
+supply deterministic token usage and verify aggregation. These metrics are not an
+invoice or wall-clock timing. No dependency update is required for this increment.
+The existing upstream Python 3.13 event-loop deprecation warning remains.
+
+The new deterministic tests exercise real retrieval and orchestration, with
+provider requests blocked. They check valid/invalid citations, missing evidence
+kinds, unknown assets, empty searches, repeated and reordered calls, redaction,
+failed/unlinked results, and actual usage. They do not measure real LLM choices or
+answer quality. The code is ready for an explicitly authorized controlled live
+three-tool test using the new summary; none has been run in this increment.

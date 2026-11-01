@@ -73,7 +73,15 @@ The preserved `investigate_asset` entry point now supports all three workflows,
 validates questions up to 8,000 characters, and bounds runs to six model turns and
 eight total tool executions. Offline FunctionModel tests verify actual framework
 execution, result linkage, retrieval parity, validation, and budgets, not genuine
-LLM tool selection or grounding. No live PydanticAI calls have been made. Citation
-validation/revision and the redacted trace interface have not yet migrated; these
-are the next recommended increment before broader evaluation. No judge, Logfire,
-or other monitoring has been added.
+LLM tool selection or grounding. No live PydanticAI calls have been made.
+
+Phase 3 adds `pam_evidence.py` and a backward-compatible higher-level entry point,
+`investigate_with_evidence`. It derives successful evidence IDs from linked actual
+framework messages, validates disclaimer/citation format, membership and retrieved
+kinds, and explicitly reports citation pass/failure. It returns redacted tool-result
+traces with local call aliases and aggregate usage from the framework. Trace order
+reflects history order, not wall-clock parallel execution. The original answer is
+preserved unredacted for review; it is not safe to treat the whole summary as a log.
+Citation checks do not establish claim-level grounding. No automatic revision call
+is made. A controlled live test and review of bounded output-validation/revision
+are future steps. No judge, Logfire, or other monitoring has been added.

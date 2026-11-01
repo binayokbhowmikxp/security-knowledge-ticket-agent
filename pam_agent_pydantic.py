@@ -6,6 +6,7 @@ from pydantic_ai import Agent, AgentRunResult
 from pydantic_ai.usage import UsageLimits
 
 import pam_tools
+from pam_evidence import summarize_result
 
 
 INSTRUCTIONS = """
@@ -86,3 +87,13 @@ def investigate_asset(question: str) -> AgentRunResult[str]:
         question,
         usage_limits=UsageLimits(request_limit=6, tool_calls_limit=8),
     )
+
+
+def investigate_with_evidence(question: str) -> dict:
+    """Run once and report citations, evidence, redacted trace and actual usage.
+
+    Inspect citation_validation_passed and citation_issues before using the answer.
+    A passing citation check does not establish semantic factual support.
+    No automatic revision or extra model request is made by this function.
+    """
+    return summarize_result(investigate_asset(question))
