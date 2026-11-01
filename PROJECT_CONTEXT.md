@@ -56,3 +56,15 @@ An explicitly enabled `--live` rotation test exercises real OpenAI model choices
 it is skipped by default. Citation and uncertainty checks remain heuristics, with
 claim-level factual support and safe recommendations requiring human review. The
 original unittest suite and production agent remain unchanged. See README for commands.
+
+## Incremental PydanticAI migration
+
+The intended agent framework is now PydanticAI, following the Buildcamp. The manual
+Responses API notebook remains the working three-tool baseline during migration.
+The first prototype, `pam_agent_pydantic.py`, registers only `get_asset_details`
+with `@agent.tool_plain` on one PydanticAI Agent using `openai:gpt-4o-mini`.
+It uses the existing synthetic inventory and bounded framework execution. Offline
+FunctionModel tests execute the real tool; no live prototype API calls have been
+made. Citation validation, documentation retrieval, historical retrieval, and trace
+compatibility have not yet migrated. Shared lookup consolidation is the next step;
+the temporary duplicate tool preserves the existing notebook and regression tests.

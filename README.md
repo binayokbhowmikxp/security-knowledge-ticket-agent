@@ -166,3 +166,54 @@ review must still assess every claim against the retrieved records, historical
 versus current causality, invented procedures, and authorization boundaries. A
 scripted safe answer passing is not evidence that the LLM will produce one. The
 live test is opt-in and was not run as part of this offline implementation.
+
+## PydanticAI migration: asset-only prototype
+
+`pam_agent_pydantic.py` is the first, separate migration increment. The existing
+three-tool notebook agent and its tests remain the working baseline. Install with
+`uv sync`; the new runtime dependency is `pydantic-ai-slim[openai]` (locked at
+2.64.0). Its dependency resolution updated the OpenAI SDK to 3.42.0.
+
+The module creates a genuine `pydantic_ai.Agent` configured for
+`openai:gpt-4o-mini`. `defer_model_check=True` delays provider initialization;
+importing it makes no API requests, needs no key, and does not read `.env`.
+`@agent.tool_plain` turns the Python function signature and docstring into a tool
+schema. “Plain” means the function needs no PydanticAI run-context argument.
+PydanticAI validates model tool arguments, calls the registered Python function,
+adds the result to message history with the corresponding tool-call ID, and asks
+the model to continue. We do not implement that loop ourselves.
+
+`get_asset_details` reads only `data/pam_assets.json`, normalizes IDs, and returns
+the existing `asset_not_found` response for missing records. Each read produces
+fresh objects so caller edits cannot affect later lookups. The instructions require
+synthetic labeling, citations for inventory findings, and uncertainty about causes.
+They are prompt requirements, not a replacement for the notebook's citation checks;
+this increment has no citation validator or the other two tools yet.
+
+`investigate_asset(question)` calls the framework's `run_sync` with a maximum of
+four model turns and three tool executions. Limits raise `UsageLimitExceeded`;
+they are per-run budgets, not a currency cap or a count of SDK transport retries.
+Use this entry point to apply these limits; direct calls to `agent.run*` need their
+own `usage_limits`. No live prototype run has been performed. A future deliberate
+live run will need `OPENAI_API_KEY` supplied by the caller.
+
+Run the new tests without API requests:
+
+```sh
+uv run python -m pytest tests/test_pam_agent_pydantic.py -v
+# Full suite, with the existing live test still skipped by default:
+uv run python -m pytest -q
+```
+
+These tests follow the [official PydanticAI testing guidance](https://pydantic.dev/docs/ai/guides/testing/):
+`Agent.override(model=FunctionModel(...))` scripts model calls while the framework
+executes our actual asset tool. A fixture explicitly blocks provider requests.
+Tests cover existing/missing assets, ID validation, independent return objects,
+the public tool schema, call/result linkage, and stopping repeated calls at the
+usage limit. They do not verify real LLM tool selection or answer grounding.
+
+Next, extract shared asset lookup into a small tool module and prove parity with
+the notebook before changing its imports. Later increments can register the two
+search tools and migrate citation validation, tracing, and scenario coverage one
+at a time. The temporary duplicate lookup keeps this prototype independent while
+the notebook is preserved.
