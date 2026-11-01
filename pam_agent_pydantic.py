@@ -9,7 +9,7 @@ from pydantic_ai.tools import ToolDefinition
 from pydantic_ai.usage import UsageLimits
 
 import pam_tools
-from pam_evidence import citation_issues, collect_evidence, summarize_result
+from pam_evidence import citation_issues, collect_evidence, documentation_issues, summarize_result
 
 
 INSTRUCTIONS = """
@@ -116,7 +116,7 @@ def validate_final_answer(ctx: RunContext[CitationRunState], answer: str) -> str
     if not ctx.deps.validate_output:
         return answer
     evidence_ids, _ = collect_evidence(ctx.messages)
-    issues = citation_issues(answer, evidence_ids)
+    issues = citation_issues(answer, evidence_ids) + documentation_issues(answer, ctx.messages)
     if issues:
         ctx.deps.correcting = True
         raise ModelRetry(

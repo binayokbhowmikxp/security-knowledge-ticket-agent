@@ -10,10 +10,13 @@ from pathlib import Path
 import re
 
 import pytest
+from pydantic_ai import capture_run_messages
+
+from pam_diagnostics import failed_run_diagnostics, retry_activity, safe_error_metadata
 
 import pam_tools
 from pam_agent_pydantic import agent, investigate_with_evidence
-from pam_evidence import DISCLAIMER
+from pam_evidence import DISCLAIMER, documentation_issues
 
 
 SCENARIOS = {
@@ -22,39 +25,6 @@ SCENARIOS = {
           'onboarding. Investigate the issue and check whether similar incidents were reported previously.'),
     'C': 'Investigate the password rotation failure on UNKNOWN-999.',
 }
-
-
-def safe_error_metadata(exc, stage):
-    """Inspect exception types/status only; never serialize messages or payloads."""
-    from openai import APIConnectionError, APIStatusError
-    from pydantic_ai.exceptions import ModelHTTPError
-
-    chain = []
-    seen = set()
-    current = exc
-    status = None
-    category = 'local_execution_error'
-    while current is not None and id(current) not in seen and len(chain) < 8:
-        seen.add(id(current))
-        chain.append(type(current).__name__)
-        candidate = getattr(current, 'status_code', None)
-        if status is None and type(candidate) is int:
-            status = candidate
-        if isinstance(current, (APIStatusError, ModelHTTPError)):
-            category = 'provider_http_error'
-        elif isinstance(current, APIConnectionError) and category != 'provider_http_error':
-            category = 'provider_connection_error'
-        elif isinstance(current, TypeError) and category == 'local_execution_error':
-            category = 'local_type_error'
-        # Inspect frame identity internally, without emitting traceback contents.
-        tb = current.__traceback__
-        while tb is not None:
-            if tb.tb_frame.f_globals.get('__name__') == 'pam_evidence':
-                stage = 'result_validation'
-            tb = tb.tb_next
-        current = current.__cause__ or current.__context__
-    return {'error_type': type(exc).__name__, 'exception_chain': chain,
-            'http_status': status, 'category': category, 'stage': stage}
 
 
 @pytest.fixture(scope='module')
@@ -102,12 +72,14 @@ def acknowledges_uncertainty(text):
     """Recognize uncertainty wording; this does not verify semantic grounding."""
     text = ' '.join(text.lower().split())
     return bool(re.search(
-        r'(?:cause|diagnos).{0,100}(?:unknown|not established|not confirmed|cannot|insufficient|uncertain|unclear)'
+        r'(?:cause|diagnos).{0,100}(?:unknown|not established|not confirmed|cannot|insufficient|uncertain|unclear|not (?:yet )?been diagnosed|undiagnosed)'
         r'|(?:cannot|insufficient|not enough).{0,100}(?:cause|diagnos)'
+        r'|\b(?:current (?:failure|incident|issue)|diagnosis).{0,60}'
+        r'(?:not (?:yet )?been diagnosed|has no established diagnosis|is not established)'
         r'|insufficient diagnostic evidence', text))
 
 
-def check_scenario(label, summary, observed):
+def check_scenario(label, summary, observed, messages=()):
     """Return fixed review reasons without exposing arguments/provider payloads."""
     failures = []
     def require(condition, reason):
@@ -147,10 +119,7 @@ def check_scenario(label, summary, observed):
         require(bool(re.search(
             r'histor.{0,250}(?:not|cannot|doesn.t)|(?:not|cannot).{0,100}histor', text)),
             'No explicit separation of historical outcomes from current diagnosis.')
-        if re.search(r'\b(?:check|review|compare|inspect|verify)\b', text):
-            require('search_documentation' in tools and bool(cited & {
-                source for source in summary['evidence_ids'] if source.startswith(('ONB-', 'ROT-', 'WEB-'))
-            }), 'Procedural guidance requires retrieved and cited documentation.')
+        failures.extend(documentation_issues(answer, messages))
     else:
         require('get_asset_details' in tools, 'Unknown asset was not looked up.')
         require(any(event['tool'] == 'get_asset_details' and event['asset_id'] == 'UNKNOWN-999'
@@ -174,19 +143,20 @@ def check_scenario(label, summary, observed):
 @pytest.mark.parametrize('label', ['A', 'B', 'C'])
 def test_pydantic_live_smoke(label, live_model, observed_tools):
     try:
-        with agent.override(model=live_model):
+        with capture_run_messages() as messages, agent.override(model=live_model):
             summary = investigate_with_evidence(SCENARIOS[label])
     except Exception as exc:
-        print(json.dumps(safe_error_metadata(exc, 'agent_execution')), flush=True)
+        print(json.dumps(failed_run_diagnostics(exc, messages, 'agent_execution')), flush=True)
         pytest.exit('STOP: live execution failed; remaining scenarios not run.', returncode=1)
     try:
-        failures = check_scenario(label, summary, observed_tools)
+        failures = check_scenario(label, summary, observed_tools, messages)
     except Exception as exc:
-        print(json.dumps(safe_error_metadata(exc, 'result_validation')), flush=True)
+        print(json.dumps(failed_run_diagnostics(exc, messages, 'result_validation')), flush=True)
         pytest.exit('STOP: result validation failed; remaining scenarios not run.', returncode=1)
     print(json.dumps({
         'scenario': label,
         **summary,
+        **retry_activity(messages),
         'tools_observed': [event['tool'] for event in summary['trace']],
         'result': 'FAIL' if failures else 'PASS',
         'failure_reasons': failures,

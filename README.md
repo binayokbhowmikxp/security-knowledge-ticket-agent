@@ -358,3 +358,66 @@ remains unclear”, “current diagnosis is not established”, and “insuffici
 diagnostic evidence”. They remain language heuristics, separate from objective
 citation validation and human grounding review. No real-model correction success
 is claimed from these deterministic tests.
+
+## Offline reliability and failed-run diagnostics
+
+The latest live results before this increment were: B passed citation membership
+but supplied undocumented technical guidance; C raised `UnexpectedModelBehavior`
+without a retained result. Its exception chain alone does **not** establish whether
+output validation or tool retry activity caused termination. No new live requests
+were made while implementing the changes below.
+
+The live smoke harness now wraps the existing entry point with the supported
+`capture_run_messages()` context. `pam_diagnostics.py` derives redacted diagnostics
+before the in-memory history goes out of scope. It never prints, serializes, or
+persists raw histories, drafts, arguments, retry content, exception messages,
+response bodies, or traceback text. Only allowlisted tool/source metadata, fixed
+error categories, exception type names, integer HTTP status, and execution stage
+are emitted. Successful tool returns are distinguished from requested, retried,
+or incomplete calls; only completed successful results supply evidence IDs.
+
+PydanticAI 2.64.0 exposes typed `RetryFeedbackPart` for output feedback and retried
+`ToolReturnPart` for tool feedback. Diagnostics retain only scope, allowlisted cause,
+and available attempt/budget integers. Terminal `ToolRetryError.tool_retry` metadata
+is also inspected when present because the last rejected retry may not reach the
+history. `ModelRetry` or `UnexpectedModelBehavior` class names alone are not treated
+as proof of output-retry exhaustion. When only prior tool-retry context is known,
+the category says `framework_failure_after_tool_retry`, not an invented root cause.
+
+`output_validation_retry_observed` and `tool_retry_observed` refer to feedback
+actually visible in captured history. Terminal retry metadata is reported separately.
+Absence of observed feedback is not proof that no validation was attempted. Partial
+usage is the sum of reported tokens on captured responses and their recorded-response
+count, clearly marked `partial`; it excludes unreturned requests and is not a total
+request count, total bill, or accepted result. No usage is invented for empty capture.
+The agent entry points still raise on failure; capture/reporting belongs to the
+caller, and successful result fields are unchanged. Successful live reports also
+include typed retry activity rather than guessing correction from request counts.
+
+The output validator additionally applies `documentation_issues` from
+`pam_evidence.py`. This is a conservative lexical procedure policy: explicit
+technical action verbs paired with vocabulary for dependencies, configuration,
+networking, password policy, permissions, web connectors, or timing require a nearby
+returned documentation citation. The cited article must contain the same topic
+vocabulary. An unrelated article or an asset/ticket citation alone is insufficient.
+The model may instead omit the procedure, explain unavailable documentation, and
+request sanitized errors, timestamps, or approved diagnostic evidence. These basic
+requests, and generic owner/evidence review, do not trigger the technical guard.
+Simple explicit negation such as “cannot review configuration” is excluded.
+
+This policy intentionally covers a testable subset of procedural language. It can
+miss paraphrases or misread complex negation, quotation, and narrative sentences;
+shared vocabulary is not semantic relevance or proof of support. It is **not** a
+universal grounding validator. Citation issues remain separate from documentation
+policy issues internally. Either can trigger the same single output retry. Missing
+documentation is available during correction under the existing tool-preparation
+rules. Six requests, eight tool executions, and one output retry remain unchanged.
+
+Offline FunctionModel regressions cover double output rejection, hidden-tool
+attempts, argument-validation retry failure, missing assets, partial usage and
+private-marker exclusion. Additional tests distinguish undocumented procedures,
+retrieval-based correction, removal of unsupported procedures, basic evidence
+requests, and unrelated citations. The uncertainty heuristic now recognizes “the
+current failure has not been diagnosed” and equivalents while retaining negative
+confirmed-cause examples. It remains a language check, separate from citation
+validation and human grounding review.

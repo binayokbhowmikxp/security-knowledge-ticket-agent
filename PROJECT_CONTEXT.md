@@ -102,3 +102,31 @@ through a test-only state override. Usage and safe traces still derive from actu
 framework messages. No live retest of correction has been run or authorized in this
 increment. Claim-level grounding and required retrieval are not semantically
 validated. No judge, Logfire, or other monitoring has been added.
+
+## Reliability and diagnostic increment after the correction retest
+
+A subsequent controlled live B retest passed citation membership but still gave
+technical advice without documentation; its uncertainty wording was missed by a
+heuristic. C raised UnexpectedModelBehavior without retained messages, so its exact
+failure mechanism is unknown. The earlier exception chain does not establish
+output-retry exhaustion.
+
+The live harness now captures failed-run messages in memory using PydanticAI's
+supported capture_run_messages context. `pam_diagnostics.py` emits only redacted
+evidence/tool metadata, typed output/tool retry categories, safe exception metadata,
+and explicitly partial reported-response usage. It never emits or persists drafts,
+raw arguments/history, exceptions, or sensitive content. Entry-point return types
+and successful fields are unchanged; failures still raise. Offline cases show that
+output rejection, invalid tool arguments, and repeated hidden-tool requests can all
+terminate a run, with different safely observable retry evidence. No live diagnostic
+retest has been performed in this increment.
+
+The existing output validator now rejects a conservative, documented subset of
+explicit technical actions without nearby returned documentation matching the topic
+vocabulary. It permits basic missing-evidence requests. Correction may retrieve
+missing documentation or omit procedures; budgets remain six requests/eight tools/
+one output retry. This lexical guard does not establish semantic grounding and may
+miss paraphrases or flag complex narrative wording. The uncertainty heuristic now
+recognizes undiagnosed-current-incident phrasing with negative cases retained.
+The next step is a separately authorized single live C diagnostic retest; no judge,
+Logfire, new framework, original-notebook, or dataset changes are included.

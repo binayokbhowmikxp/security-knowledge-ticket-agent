@@ -125,6 +125,55 @@ def citation_issues(answer, evidence_ids):
     return list(dict.fromkeys(issues))
 
 
+TECHNICAL_TOPICS = {
+    'dependencies': r'\bdependenc\w*|\bbatch jobs?\b|\bscheduled jobs?\b',
+    'configuration': r'\bconfigurat\w*|\bplatform\b',
+    'network': r'\bconnectivity\b|\bdns\b|\bfirewall\w*|\bprotocol\w*|\bports?\b',
+    'policy': r'\bpassword polic\w*|\bminimum age\b|\bcomplexity\b',
+    'permissions': r'\bpermissions?\b|\baccount (?:state|restrictions?)\b',
+    'web connector': r'\bselectors?\b|\bpage structure\b|\bredirect\w*|\blogin (?:field|element)\b',
+    'timing': r'\brotation schedule\b|\btarget availability\b',
+}
+
+
+def documentation_issues(answer, messages):
+    """Conservative lexical guard for explicit technical actions, not semantics.
+
+    Basic requests to collect/provide sanitized errors, timestamps or approved
+    evidence are not technical procedures under this policy. Detected actions
+    require a nearby returned article citation with matching topic vocabulary.
+    This intentionally does not claim to recognize every possible procedure.
+    """
+    evidence, _ = collect_evidence(messages)
+    docs = {}
+    for message in messages:
+        for part in message.parts:
+            if (isinstance(part, ToolReturnPart) and part.tool_name == 'search_documentation'
+                    and part.outcome == 'success' and isinstance(part.content, list)):
+                for record in part.content:
+                    if isinstance(record, dict) and record.get('id') in evidence and 'error' not in record:
+                        docs[record['id']] = str(record.get('title', '')) + ' ' + str(record.get('content', ''))
+    issues = []
+    for clause in re.split(r'\n+|(?<=[.!?])\s+', answer):
+        plain = re.sub(r'[*`#]', '', clause).lower()
+        topics = set()
+        for action in re.finditer(r'\b(?:review|check|inspect|compare|verify|examine|validate|'
+                                  r'investigate|test|trace|confirm|correlate)\b', plain):
+            prefix = plain[max(0, action.start() - 35):action.start()]
+            if re.search(r'(?:cannot|can.t|do not|don.t|unable to|will not)\s*$', prefix):
+                continue
+            target = plain[action.end():action.end() + 120]
+            topics.update(name for name, pattern in TECHNICAL_TOPICS.items() if re.search(pattern, target))
+        cited = set(re.findall(r'\[((?:ONB|ROT|WEB)-\d{3})\]', clause))
+        for topic in sorted(topics):
+            if not any(source in docs and re.search(TECHNICAL_TOPICS[topic], docs[source], re.I)
+                       for source in cited):
+                issues.append(f'Technical {topic} guidance needs a nearby returned documentation '
+                              'citation with matching topic evidence. Retrieve documentation or omit '
+                              'the procedure and explain that documentation evidence is unavailable.')
+    return list(dict.fromkeys(issues))
+
+
 def summarize_result(result):
     """Summarize an actual AgentRunResult without exposing its raw messages."""
     evidence_ids, trace = collect_evidence(result.all_messages())
