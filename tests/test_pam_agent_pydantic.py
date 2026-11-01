@@ -11,7 +11,7 @@ from pydantic_ai.usage import RequestUsage
 
 import pam_tools
 from pam_agent_pydantic import (
-    agent, get_asset_details, investigate_asset, investigate_with_evidence,
+    CitationRunState, agent, get_asset_details, investigate_asset, investigate_with_evidence,
     search_documentation, search_past_tickets,
 )
 from pam_evidence import DISCLAIMER, collect_evidence, summarize_result
@@ -19,8 +19,14 @@ from pam_evidence import DISCLAIMER, collect_evidence, summarize_result
 
 @pytest.fixture(autouse=True)
 def block_provider_requests():
-    """FunctionModel is allowed; accidental real provider requests are forbidden."""
-    with models.override_allow_model_requests(False):
+    """Preserve protocol/draft-report tests without correcting their scripted prose.
+
+    Native correction is tested separately with validation enabled by default.
+    All citation/report assertions below still inspect the original invalid drafts.
+    """
+    with models.override_allow_model_requests(False), agent.override(
+        deps=CitationRunState(validate_output=False)
+    ):
         yield
 
 

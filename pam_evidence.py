@@ -103,8 +103,10 @@ def citation_issues(answer, evidence_ids):
     """
     evidence = set(evidence_ids)
     issues = []
-    if not answer.strip().casefold().startswith(DISCLAIMER.casefold()):
+    if not answer.startswith(DISCLAIMER):
         issues.append('Begin the answer with the synthetic-training disclaimer: ' + DISCLAIMER)
+    if re.search(r'\[[^\]\n]*[A-Za-z][A-Za-z0-9_]*-\d+[^\]\n]*\]\s*\(', answer):
+        issues.append('Use plain bracketed source IDs, not Markdown links.')
     cited = set(re.findall(r'\[(' + SOURCE_PATTERN + r')\]', answer))
     for bracket in re.findall(r'\[([^\[\]\n]+)\]', answer):
         # Also flag unknown prefixes, wrong case/length, and grouped source IDs.

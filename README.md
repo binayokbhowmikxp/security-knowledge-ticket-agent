@@ -203,8 +203,8 @@ Instructions require documentation for guidance, current inventory for asset
 findings, historical tickets for comparisons, bracketed evidence IDs, synthetic
 labeling, and explicit uncertainty. Historical resolutions must not be used as
 proof of a current cause. Phase 3 adds post-run citation validation and a redacted execution summary,
-described below. The notebook's automatic citation revision remains separate;
-no automatic correction call is made by the PydanticAI summary.
+described below. The current agent also uses native bounded output correction;
+the original notebook's manual orchestration remains unchanged.
 
 The notebook retains its self-contained retrieval implementation in this increment
 because its indexes, loaded records, and helper variables remain part of existing
@@ -232,10 +232,11 @@ notebook, not PydanticAI.
 
 The prototype is ready for a deliberately authorized three-tool live smoke test
 using `investigate_asset`, with `OPENAI_API_KEY` supplied by the caller, followed by
-human review of messages and evidence. No real PydanticAI model calls have been
-made. Avoid printing raw messages in routine logs. Next, review controlled live
-results before deciding whether to add bounded output validation/revision. Notebook
-retrieval consolidation remains a separate increment. No judge or monitoring is implemented.
+human review of messages and evidence. No real PydanticAI model calls were
+made during Phases 1–3. Phase 4 live testing subsequently found citation omissions
+and an unretrieved asset citation. Native bounded correction is now implemented
+offline and awaits a separately authorized live retest. Notebook retrieval
+consolidation remains separate. No judge or monitoring is implemented.
 
 
 ## Evidence validation and redacted tracing (Phase 3)
@@ -244,7 +245,7 @@ retrieval consolidation remains a separate increment. No judge or monitoring is 
 `AgentRunResult[str]`. The new `investigate_with_evidence(question)` calls it once
 with the same limits, then returns a dictionary containing:
 
-- `answer`: the original, unredacted model answer, even if validation fails.
+- `answer`: the accepted final answer, unredacted, possibly after one correction.
 - `evidence_ids`: unique IDs from successful, linked tool results.
 - `trace`: minimal redacted tool-result events.
 - `citation_issues`: actionable validation errors, or an empty list.
@@ -274,8 +275,10 @@ A passing result is **citation-validated, not proven factually grounded**. Membe
 does not show that a source supports the adjacent claim, that every factual claim
 has a citation, that historical outcomes are interpreted correctly, or that an
 uncited answer honestly reflects missing evidence. Human review is still required.
-No automatic extra revision request is implemented. Inspect the boolean and issue
-list before presenting an answer; invalid answers are preserved for review.
+The agent now permits one native output correction, described below. Persistent
+validation failure raises an exception instead of returning a successful summary.
+The standalone `summarize_result` helper can still report issues in arbitrary raw
+results for offline review; it does not itself request correction.
 
 Trace events contain only sequence, an allowlisted tool name, a local call alias,
 returned source IDs, and a fixed error code. Actual call IDs are mapped to aliases
@@ -298,4 +301,60 @@ provider requests blocked. They check valid/invalid citations, missing evidence
 kinds, unknown assets, empty searches, repeated and reordered calls, redaction,
 failed/unlinked results, and actual usage. They do not measure real LLM choices or
 answer quality. The code is ready for an explicitly authorized controlled live
-three-tool test using the new summary; none has been run in this increment.
+three-tool retest using bounded correction; no live retest is run in this increment.
+
+
+## Bounded native citation correction
+
+Both existing entry points now validate proposed final answers through
+`@agent.output_validator`. Its `RunContext.messages` contains the same run's actual
+tool executions. The validator reuses `collect_evidence` and `citation_issues`,
+never derives evidence from model prose, and raises PydanticAI `ModelRetry` with
+specific correction feedback when checks fail. The exact opening disclaimer is
+required, and source-shaped Markdown links are rejected in favor of plain IDs.
+
+`AgentRetries(tools=1, output=1)` separates tool retries from the single allowed
+output-validation retry. A second invalid proposed answer raises
+`UnexpectedModelBehavior`; `investigate_with_evidence` does not return a passing
+summary in that case. Six model requests and eight total tool executions still
+bound the entire run, including correction. A run already at its request budget
+can fail with `UsageLimitExceeded` before correction is possible.
+
+A small fresh `CitationRunState` is passed per run. Tool `prepare` functions use
+it to hide inventory and ticket tools after a rejected draft. If documentation has
+not yet been attempted, only `search_documentation` remains available for genuinely
+missing guidance; after that attempt it is hidden too. A model request to a hidden
+tool does not execute Python. This is not necessarily exactly one extra API call:
+missing documentation can require a tool-request turn followed by a corrected
+answer, all inside the same budgets. The guard does not semantically determine
+whether documentation is needed, or forbid multiple documentation calls in one
+batch; the overall tool limit still applies.
+
+The returned summary shape is unchanged. Evidence and trace derive from actual
+messages, and usage includes all correction-related requests/tokens/tools. A
+successful summary contains the accepted answer and no citation issues. Failure
+raises; it does not provide a partial success summary. Raw draft histories and
+exception contents are not privacy-safe diagnostics.
+
+Instructions now emphasize nearby claim citations, current versus historical
+sources, documentation before procedures, no unrelated history searches for an
+unknown asset, and recommending escalation rather than claiming the agent can
+perform it. These instructions and citation membership checks still do not enforce
+semantic support, per-claim coverage, tool-selection correctness, or capability
+claims. A syntactically valid but unsupported answer can still pass.
+
+`tests/test_pydantic_correction.py` tests the default validator with FunctionModel
+and provider requests blocked: no-retry success, corrected missing/fabricated/link
+citations and disclaimer, missing assets, exhausted output retries, restricted
+correction tools, missing-documentation retrieval, redaction, and both budgets.
+The earlier `tests/test_pam_agent_pydantic.py` protocol and draft-reporting tests
+explicitly override run state to report-only (`validate_output=False`) so their
+predetermined invalid drafts remain inspectable with all prior assertions intact.
+Normal entry points always create validation-enabled state. Direct `agent.run*`
+users must supply `deps=CitationRunState()` and their own limits/validation.
+
+Live Scenario B's uncertainty-wording checks now also recognize “exact cause
+remains unclear”, “current diagnosis is not established”, and “insufficient
+diagnostic evidence”. They remain language heuristics, separate from objective
+citation validation and human grounding review. No real-model correction success
+is claimed from these deterministic tests.

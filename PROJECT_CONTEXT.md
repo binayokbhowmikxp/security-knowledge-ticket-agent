@@ -73,7 +73,9 @@ The preserved `investigate_asset` entry point now supports all three workflows,
 validates questions up to 8,000 characters, and bounds runs to six model turns and
 eight total tool executions. Offline FunctionModel tests verify actual framework
 execution, result linkage, retrieval parity, validation, and budgets, not genuine
-LLM tool selection or grounding. No live PydanticAI calls have been made.
+LLM tool selection or grounding. Phase 4 live tests later completed all three
+original scenarios: A passed automated checks with attribution gaps; B omitted
+citations/documentation, and C invented an unretrieved asset citation. B/C failed.
 
 Phase 3 adds `pam_evidence.py` and a backward-compatible higher-level entry point,
 `investigate_with_evidence`. It derives successful evidence IDs from linked actual
@@ -82,6 +84,21 @@ kinds, and explicitly reports citation pass/failure. It returns redacted tool-re
 traces with local call aliases and aggregate usage from the framework. Trace order
 reflects history order, not wall-clock parallel execution. The original answer is
 preserved unredacted for review; it is not safe to treat the whole summary as a log.
-Citation checks do not establish claim-level grounding. No automatic revision call
-is made. A controlled live test and review of bounded output-validation/revision
-are future steps. No judge, Logfire, or other monitoring has been added.
+Citation checks do not establish claim-level grounding.
+
+Native bounded correction now uses an output validator and ModelRetry on the same
+agent, validating successful evidence from RunContext.messages. A maximum of one
+output retry is enforced by AgentRetries(output=1); another invalid final answer
+raises UnexpectedModelBehavior. Both entry points preserve return types on success;
+the higher-level function no longer returns a successful summary after persistent
+citation failure. The six-request/eight-tool budgets include correction. During
+correction, tool preparation hides inventory/ticket tools and permits only a not-yet-
+attempted documentation search. Instructions address nearby source attribution,
+unknown assets, historical uncertainty, and the absence of escalation capabilities.
+
+Default validation and restricted correction tools are tested offline separately
+from legacy protocol/draft-reporting tests, which explicitly disable correction
+through a test-only state override. Usage and safe traces still derive from actual
+framework messages. No live retest of correction has been run or authorized in this
+increment. Claim-level grounding and required retrieval are not semantically
+validated. No judge, Logfire, or other monitoring has been added.
