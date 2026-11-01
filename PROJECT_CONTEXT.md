@@ -130,3 +130,22 @@ miss paraphrases or flag complex narrative wording. The uncertainty heuristic no
 recognizes undiagnosed-current-incident phrasing with negative cases retained.
 The next step is a separately authorized single live C diagnostic retest; no judge,
 Logfire, new framework, original-notebook, or dataset changes are included.
+
+## Consolidated offline reliability increment
+
+The latest controlled C run passed with an observed output correction. B retrieved
+asset/ticket evidence but terminated after output validation; its earlier diagnostics
+could not identify the failed checks. Validation now emits fixed reason codes at
+the check branches, preserving existing readable messages. Each run retains only
+its own rejection-code history for safe failure reporting. Terminal codes are
+reported only when carried by the terminal validation exception; otherwise omitted.
+Both entry points and successful result fields remain compatible.
+
+New offline B/D/E tests execute real framework tools with scripted model messages:
+rotation evidence and both documentation-correction paths, explicit persistent
+failure, custom web connector evidence in either order, and insufficient evidence
+for a definitive diagnosis. These are deterministic contracts, not proof of LLM
+reasoning or semantic grounding. The next justified live step is a separately
+authorized single B verification with code-level failure reasons; no live requests,
+new tools/frameworks, budget increases, dataset changes, or notebook rewrites are
+part of this increment.

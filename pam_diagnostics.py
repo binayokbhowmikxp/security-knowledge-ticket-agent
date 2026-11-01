@@ -6,7 +6,7 @@ from pydantic_ai.exceptions import ModelHTTPError, UnexpectedModelBehavior, Usag
 from pydantic_ai.messages import ModelResponse, RetryFeedbackPart, ToolReturnPart
 from openai import APIConnectionError, APIStatusError
 
-from pam_evidence import collect_evidence
+from pam_evidence import VALIDATION_REASON_CODES, collect_evidence
 
 
 TOOL_CAUSES = {'validation_error', 'model_retry', 'unknown_tool', 'unavailable_tool'}
@@ -89,6 +89,20 @@ def safe_error_metadata(exc, stage):
 def failed_run_diagnostics(exc, messages, stage='agent_execution'):
     """Summarize a failed run captured by capture_run_messages, never its drafts."""
     result = safe_error_metadata(exc, stage)
+    # Read only our validator's structured attributes; never parse retry text.
+    rejections = getattr(exc, 'pam_validation_rejections', ())
+    if isinstance(rejections, (tuple, list)):
+        result['validation_rejections'] = [
+            {'rejection': number, 'reason_codes': sorted({code for code in codes
+                if isinstance(code, str) and code in VALIDATION_REASON_CODES})}
+            for number, codes in enumerate(rejections, 1) if isinstance(codes, (tuple, list))
+        ]
+    for error in _exceptions(exc):
+        codes = getattr(error, 'pam_validation_reason_codes', None)
+        if isinstance(codes, (tuple, list)):
+            result['terminal_validation_reason_codes'] = sorted({code for code in codes
+                if isinstance(code, str) and code in VALIDATION_REASON_CODES})
+            break
     evidence, trace = collect_evidence(messages)
     result.update({'evidence_ids': evidence, 'trace': trace,
                    'executed_tools': [e['tool'] for e in trace

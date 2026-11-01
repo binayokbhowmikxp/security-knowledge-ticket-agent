@@ -421,3 +421,33 @@ requests, and unrelated citations. The uncertainty heuristic now recognizes “t
 current failure has not been diagnosed” and equivalents while retaining negative
 confirmed-cause examples. It remains a language check, separate from citation
 validation and human grounding review.
+
+## Fixed validation reasons and offline scenario coverage
+
+Validation checks now produce `(fixed_code, existing_message)` pairs at the failing
+branch, without parsing free-text errors. The public `citation_issues` and
+`documentation_issues` functions still return the same human-readable messages.
+Codes are limited to `missing_citation`, `unretrieved_citation`,
+`invalid_citation_format`, `missing_disclaimer`, and
+`unsupported_documentation_guidance`.
+
+Each run owns its rejection-code history. If execution fails, the entry point
+attaches an immutable code-only snapshot to the original exception and re-raises
+it unchanged. The rejecting `ModelRetry` also carries that rejection's codes.
+`failed_run_diagnostics` reports an allowlisted `validation_rejections` history and
+adds `terminal_validation_reason_codes` only when those codes are actually present
+in the terminal exception chain. A later tool/usage failure may retain the initial
+rejection history without exposing a terminal output rejection reason; the helper
+omits that terminal field rather than guessing. Accepted-result fields and both
+entry-point signatures are unchanged. No draft text or source records are added to
+safe diagnostics, and no global run history is retained.
+
+`tests/test_pydantic_reliability_scenarios.py` covers rotation with current and
+historical evidence, both documentation-correction choices, persistent rejection,
+fixed-code privacy/isolation, web connector investigation in either independent
+call order, and an honest response to a definitive-diagnosis request. FunctionModel
+predetermines choices and prose while PydanticAI executes real retrieval. These
+contracts do not establish genuine LLM reasoning, per-claim entailment, reliable
+historical interpretation, or consistent real-model correction. The six-request,
+eight-tool and one-output-retry budgets, retrieval data/ranking, and original
+notebooks are unchanged. No paid retest was performed in this increment.

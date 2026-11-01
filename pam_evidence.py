@@ -12,6 +12,10 @@ SOURCE_TYPES = {
     'search_past_tickets': ('ticket_id', r'TKT-\d{3}', 'historical ticket'),
 }
 SOURCE_PATTERN = r'(?:ONB|ROT|WEB|LNX|WIN|APP|TKT)-\d{3}'
+VALIDATION_REASON_CODES = frozenset({
+    'missing_citation', 'unretrieved_citation', 'invalid_citation_format',
+    'missing_disclaimer', 'unsupported_documentation_guidance',
+})
 
 
 def returned_ids(tool_name, content):
@@ -95,7 +99,7 @@ def collect_evidence(messages):
     return sorted(evidence), trace
 
 
-def citation_issues(answer, evidence_ids):
+def _citation_checks(answer, evidence_ids):
     """Check disclaimer, formatting, membership and evidence kinds, not entailment.
 
     As in the notebook, require one citation per retrieved kind. This conservative
@@ -104,25 +108,30 @@ def citation_issues(answer, evidence_ids):
     evidence = set(evidence_ids)
     issues = []
     if not answer.startswith(DISCLAIMER):
-        issues.append('Begin the answer with the synthetic-training disclaimer: ' + DISCLAIMER)
+        issues.append(('missing_disclaimer', 'Begin the answer with the synthetic-training disclaimer: ' + DISCLAIMER))
     if re.search(r'\[[^\]\n]*[A-Za-z][A-Za-z0-9_]*-\d+[^\]\n]*\]\s*\(', answer):
-        issues.append('Use plain bracketed source IDs, not Markdown links.')
+        issues.append(('invalid_citation_format', 'Use plain bracketed source IDs, not Markdown links.'))
     cited = set(re.findall(r'\[(' + SOURCE_PATTERN + r')\]', answer))
     for bracket in re.findall(r'\[([^\[\]\n]+)\]', answer):
         # Also flag unknown prefixes, wrong case/length, and grouped source IDs.
         if re.search(r'[A-Za-z][A-Za-z0-9_]*-\d+', bracket):
             if not re.fullmatch(SOURCE_PATTERN, bracket):
-                issues.append('Unsupported source-ID format/category; cite one returned ID per bracket.')
+                issues.append(('invalid_citation_format', 'Unsupported source-ID format/category; cite one returned ID per bracket.'))
     if cited - evidence:
-        issues.append('Unretrieved citations: ' + ', '.join(sorted(cited - evidence))
-                      + '. Remove them or retrieve supporting records.')
+        issues.append(('unretrieved_citation', 'Unretrieved citations: ' + ', '.join(sorted(cited - evidence))
+                      + '. Remove them or retrieve supporting records.'))
     if evidence and not cited:
-        issues.append('Evidence was retrieved but no bracketed citations appear; cite supported findings.')
+        issues.append(('missing_citation', 'Evidence was retrieved but no bracketed citations appear; cite supported findings.'))
     for _, pattern, label in SOURCE_TYPES.values():
         if any(re.fullmatch(pattern, source) for source in evidence):
             if not any(re.fullmatch(pattern, source) for source in cited & evidence):
-                issues.append(f'Missing valid {label} citation; cite a returned ID beside supported findings.')
+                issues.append(('missing_citation', f'Missing valid {label} citation; cite a returned ID beside supported findings.'))
     return list(dict.fromkeys(issues))
+
+
+def citation_issues(answer, evidence_ids):
+    """Keep the existing human-readable citation-reporting interface."""
+    return [message for _, message in _citation_checks(answer, evidence_ids)]
 
 
 TECHNICAL_TOPICS = {
@@ -136,7 +145,7 @@ TECHNICAL_TOPICS = {
 }
 
 
-def documentation_issues(answer, messages):
+def _documentation_checks(answer, messages):
     """Conservative lexical guard for explicit technical actions, not semantics.
 
     Basic requests to collect/provide sanitized errors, timestamps or approved
@@ -168,10 +177,22 @@ def documentation_issues(answer, messages):
         for topic in sorted(topics):
             if not any(source in docs and re.search(TECHNICAL_TOPICS[topic], docs[source], re.I)
                        for source in cited):
-                issues.append(f'Technical {topic} guidance needs a nearby returned documentation '
+                issues.append(('unsupported_documentation_guidance',
+                              f'Technical {topic} guidance needs a nearby returned documentation '
                               'citation with matching topic evidence. Retrieve documentation or omit '
-                              'the procedure and explain that documentation evidence is unavailable.')
+                              'the procedure and explain that documentation evidence is unavailable.'))
     return list(dict.fromkeys(issues))
+
+
+def documentation_issues(answer, messages):
+    """Keep the existing human-readable documentation-reporting interface."""
+    return [message for _, message in _documentation_checks(answer, messages)]
+
+
+def answer_validation_checks(answer, messages):
+    """Produce (fixed code, existing message) pairs directly from failed checks."""
+    evidence, _ = collect_evidence(messages)
+    return _citation_checks(answer, evidence) + _documentation_checks(answer, messages)
 
 
 def summarize_result(result):

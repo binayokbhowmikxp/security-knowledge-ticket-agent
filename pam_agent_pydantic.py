@@ -2,14 +2,14 @@
 
 Importing this module neither loads .env nor creates a provider client.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pydantic_ai import Agent, AgentRetries, AgentRunResult, ModelRetry, RunContext
 from pydantic_ai.tools import ToolDefinition
 from pydantic_ai.usage import UsageLimits
 
 import pam_tools
-from pam_evidence import citation_issues, collect_evidence, documentation_issues, summarize_result
+from pam_evidence import answer_validation_checks, collect_evidence, summarize_result
 
 
 INSTRUCTIONS = """
@@ -57,6 +57,7 @@ class CitationRunState:
     """Fresh state per run; report-only mode exists for offline draft tests."""
     validate_output: bool = True
     correcting: bool = False
+    validation_rejections: list[tuple[str, ...]] = field(default_factory=list)
 
 
 def prepare_correction_tool(ctx: RunContext[CitationRunState], tool: ToolDefinition):
@@ -115,12 +116,13 @@ def validate_final_answer(ctx: RunContext[CitationRunState], answer: str) -> str
     """Reject invalid citations using only successful evidence in this run."""
     if not ctx.deps.validate_output:
         return answer
-    evidence_ids, _ = collect_evidence(ctx.messages)
-    issues = citation_issues(answer, evidence_ids) + documentation_issues(answer, ctx.messages)
-    if issues:
+    checks = answer_validation_checks(answer, ctx.messages)
+    if checks:
         ctx.deps.correcting = True
-        raise ModelRetry(
-            'Correct the final answer using actual returned evidence. ' + ' '.join(issues)
+        codes = tuple(sorted({code for code, _ in checks}))
+        ctx.deps.validation_rejections.append(codes)
+        retry = ModelRetry(
+            'Correct the final answer using actual returned evidence. ' + ' '.join(message for _, message in checks)
             + ' Keep the exact synthetic-training disclaimer. Use plain bracketed IDs '
             'beside supported claims, not Markdown links. Remove unsupported claims; '
             'historical outcomes do not diagnose the current cause. If documentation '
@@ -128,6 +130,9 @@ def validate_final_answer(ctx: RunContext[CitationRunState], answer: str) -> str
             'omit unsupported procedures and explain the missing evidence. Do not '
             'repeat inventory or ticket lookups. Never claim you can execute escalation.'
         )
+        # Only fixed codes travel with the exception, never the rejected draft.
+        retry.pam_validation_reason_codes = codes
+        raise retry
     return answer
 
 
@@ -138,11 +143,17 @@ def investigate_asset(question: str) -> AgentRunResult[str]:
     Calling agent.run_sync directly requires supplying validation/limits separately.
     """
     question = pam_tools.validate_text(question, 'question', 8000)
-    return agent.run_sync(
-        question,
-        deps=CitationRunState(),
-        usage_limits=UsageLimits(request_limit=6, tool_calls_limit=8),
-    )
+    state = CitationRunState()
+    try:
+        return agent.run_sync(
+            question,
+            deps=state,
+            usage_limits=UsageLimits(request_limit=6, tool_calls_limit=8),
+        )
+    except Exception as exc:
+        # Preserve failure type/behavior while making this run's codes available.
+        exc.pam_validation_rejections = tuple(state.validation_rejections)
+        raise
 
 
 def investigate_with_evidence(question: str) -> dict:
