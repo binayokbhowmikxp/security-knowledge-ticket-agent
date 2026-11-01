@@ -451,3 +451,26 @@ contracts do not establish genuine LLM reasoning, per-claim entailment, reliable
 historical interpretation, or consistent real-model correction. The six-request,
 eight-tool and one-output-retry budgets, retrieval data/ranking, and original
 notebooks are unchanged. No paid retest was performed in this increment.
+
+## Question 3: live LLM judge test
+
+`tests/test_pydantic_judge.py` runs the existing rotation agent once, then awaits
+`assert_criteria(result, criteria=[...])` from `tests/judge.py`. Both use real
+OpenAI `gpt-4o-mini`; the separate judge receives only the accepted answer, executed
+tool names, successful evidence IDs, and the three assignment criteria. Structured
+feedback must cover every exact criterion once with a nonempty explanation; missing,
+duplicate, altered, or failed evaluations raise an assertion. The judge has one
+request and no output-repair retries. Main-agent limits/correction are unchanged.
+
+```sh
+# Collect/skip without any API requests:
+uv run pytest tests/test_pydantic_judge.py -q
+# Deliberately enable the paid agent run plus one paid judge evaluation:
+uv run pytest tests/test_pydantic_judge.py --live -v -s --tb=short
+```
+
+Pytest-asyncio is a development dependency for the course's async test pattern.
+The synchronous production entry point runs in a worker thread; the async judge
+uses a separate client. Feedback is probabilistic and does not prove source-level
+entailment: inventory/ticket bodies are deliberately withheld from the judge.
+No cost tracker, monitoring, or Logfire integration is added.

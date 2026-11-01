@@ -149,3 +149,14 @@ reasoning or semantic grounding. The next justified live step is a separately
 authorized single B verification with code-level failure reasons; no live requests,
 new tools/frameworks, budget increases, dataset changes, or notebook rewrites are
 part of this increment.
+
+## Question 3 live judge test
+
+The opt-in `tests/test_pydantic_judge.py` homework test evaluates one real rotation
+agent run with a separate PydanticAI gpt-4o-mini judge. It uses the course's structured
+criterion/feedback and async assert_criteria pattern. Only the accepted answer,
+actual tools, successful evidence IDs, and three fixed criteria go to the judge;
+raw arguments and record bodies are withheld. Every criterion must be evaluated
+exactly once; failures propagate without rerunning either agent. Judge results
+remain probabilistic and cannot replace source-level human grounding review.
+Production agent behavior, tools and budgets are unchanged. No monitoring added.
