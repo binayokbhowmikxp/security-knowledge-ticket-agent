@@ -5,10 +5,12 @@ description = "A read-only agent for evidence-grounded PAM knowledge Q&A and syn
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "logfire>=5.4.0",
     "minsearch>=0.2.0",
     "openai>=3.16.2",
     "pydantic-ai-slim[openai]>=2.64.0",
     "python-dotenv>=1.2.3",
+    "streamlit>=1.66.1",
 ]
 
 [dependency-groups]

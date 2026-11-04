@@ -136,14 +136,15 @@ def validate_final_answer(ctx: RunContext[CitationRunState], answer: str) -> str
     return answer
 
 
-def investigate_asset(question: str) -> AgentRunResult[str]:
+def investigate_asset(question: str, validate_output: bool = True) -> AgentRunResult[str]:
     """Run the framework with bounded usage; retain the Phase 1 entry-point name.
 
     A real run requires OPENAI_API_KEY in the environment. Tests override the model.
     Calling agent.run_sync directly requires supplying validation/limits separately.
+    validate_output=False skips custom final-answer rejection/correction only.
     """
     question = pam_tools.validate_text(question, 'question', 8000)
-    state = CitationRunState()
+    state = CitationRunState(validate_output=validate_output)
     try:
         return agent.run_sync(
             question,
@@ -156,12 +157,13 @@ def investigate_asset(question: str) -> AgentRunResult[str]:
         raise
 
 
-def investigate_with_evidence(question: str) -> dict:
+def investigate_with_evidence(question: str, validate_output: bool = True) -> dict:
     """Run once and report citations, evidence, redacted trace and actual usage.
 
     Inspect citation_validation_passed and citation_issues before using the answer.
     A passing citation check does not establish semantic factual support.
     The framework permits one output-validation correction within the same run.
     A second invalid final answer raises UnexpectedModelBehavior, not a summary.
+    With validate_output=False, post-run citation checks are informational only.
     """
-    return summarize_result(investigate_asset(question))
+    return summarize_result(investigate_asset(question, validate_output=validate_output))

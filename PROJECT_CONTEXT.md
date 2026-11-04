@@ -160,3 +160,35 @@ raw arguments and record bodies are withheld. Every criterion must be evaluated
 exactly once; failures propagate without rerunning either agent. Judge results
 remain probabilistic and cannot replace source-level human grounding review.
 Production agent behavior, tools and budgets are unchanged. No monitoring added.
+
+## Optional Streamlit frontend
+
+`app.py` is a small native Streamlit chat frontend calling the unchanged
+`investigate_with_evidence(question)` entry point. It loads the existing local
+.env, uses real gpt-4o-mini requests on submission, and preserves agent budgets and
+validation. Answers and redacted activity/evidence/usage are displayed in the
+current browser session, with a clear-history button and safe failure messages.
+Chat history is visual only; questions run independently. There is no streaming,
+new agent/tool, authentication, persistence, monitoring, or deployment infrastructure.
+Offline AppTest tests use interface-only stubs; the app itself always calls the real
+agent. See README for startup and a single manual paid test procedure.
+
+The optional Streamlit UI temporarily disables custom final-answer rejection and
+correction via validate_output=False for manual experimentation. It displays an
+explicit unverified-output notice and labels post-run citation checks informational.
+Both agent entry points default to validation enabled; tools and usage limits are
+unchanged. No paid requests were made to verify this UI-mode change.
+
+Monitoring Question 1 increment: the Streamlit branch uses official Logfire
+instrumentation on the existing single PydanticAI agent, with content and exception
+payloads excluded. Each UI investigation has an anonymous-session root span. Reported
+usage drives in-memory session totals and gpt-4o-mini list-price cost estimates;
+partial failures are explicitly incomplete. Experimental UI validation remains off.
+No replay, evaluation, database, remediation or additional agent is introduced.
+
+Live monitoring verification (2026-11-04): one real onboarding question through
+Streamlit's existing entry point completed with 2 model requests and 1 documentation
+tool call; 1,926 input / 283 output tokens, estimated $0.00045870. Root, agent, two
+model and one tool span were observed under one trace, with HTTP 200 trace-ingestion
+acknowledgements. Dashboard visibility was not independently inspected. Informational
+citation checks passed; this does not establish claim-level factual correctness.

@@ -474,3 +474,88 @@ The synchronous production entry point runs in a worker thread; the async judge
 uses a separate client. Feedback is probabilistic and does not prove source-level
 entailment: inventory/ticket bodies are deliberately withheld from the judge.
 No cost tracker, monitoring, or Logfire integration is added.
+
+## Optional Streamlit chat UI
+
+`app.py` provides a small native Streamlit chat interface for the existing
+PydanticAI PAM agent. Every submitted question calls
+`investigate_with_evidence(question)` with the real `gpt-4o-mini` model and its
+existing correction and usage limits. Failed requests display a short safe error;
+the UI does not automatically retry them. Agent activity shows only redacted tool
+names, returned evidence IDs, and status. A second expander shows actual evidence,
+citation status, request/tool counts, and total tokens.
+
+From the repository root:
+
+```sh
+uv sync
+# Only if .env does not already exist:
+cp .env.example .env
+# Add your OPENAI_API_KEY locally; never commit the key or .env.
+uv run streamlit run app.py
+```
+
+Keep an already configured `.env`; the app loads it without displaying credentials.
+Open the local URL printed by Streamlit (normally http://localhost:8501).
+Submitting a question makes paid OpenAI API requests; merely starting the app does
+not. The sidebar's Clear conversation button removes displayed session history.
+History is **visual only**: each question executes independently, without previous
+turns being sent to the model. There is no streaming, persistent history, judge,
+monitoring, authentication, or deployment layer in this UI.
+
+To manually verify one real UI investigation, submit this once:
+
+> Password rotation failed for a privileged account on LNX-001 shortly after onboarding. Investigate the issue and check whether similar incidents were reported previously.
+
+Review the accepted answer, citations, Agent activity, and Evidence and usage.
+If it fails, preserve the safe error for review rather than repeatedly submitting.
+Offline UI tests use Streamlit AppTest with a test-only stub to check interface
+behavior without costs; no simulated responses are included in the application.
+
+```sh
+uv run python -m pytest tests/test_streamlit_app.py -q
+```
+
+The Streamlit UI currently uses **experimental unvalidated output mode**:
+`investigate_with_evidence(question, validate_output=False)`. The actual generated
+answer is displayed without custom final-answer rejection or correction. Post-run
+citation checks are informational only, and answers are not verified. Both Python
+entry points retain `validate_output=True` by default; tool validation and the
+six-request/eight-tool limits are unchanged.
+
+### Monitoring (capstone Question 1)
+
+Run `uv sync`, then set `OPENAI_API_KEY` and the Logfire project's write token
+`LOGFIRE_TOKEN` in your local `.env` (never commit either). Start the UI with
+`uv run streamlit run app.py`. Missing `LOGFIRE_TOKEN` disables telemetry export;
+the agent can still run. No read token, querying or trace replay is required.
+
+Open your project's Logfire live view and filter service `pam-agent`. Each submitted
+question creates a `PAM investigation` root span with an anonymous session UUID,
+with nested agent, model-request and tool spans. Durations, reported token usage,
+execution status and typed retry metadata are available. The UI shows the trace ID
+for successful runs; use it to locate that investigation. Errors retain safe
+classification, not exception messages or stack traces. Experimental UI output
+validation remains disabled; monitoring does not verify answer quality.
+
+The UI shows successful request input/output tokens and estimated USD cost, plus
+session totals. Rates in `pam_monitoring.py` are **$0.15/million input tokens** and
+**$0.60/million output tokens**, from the
+[official gpt-4o-mini pricing](https://developers.openai.com/api/docs/models/gpt-4o-mini).
+Cost = `(input_tokens * 0.15 + output_tokens * 0.60) / 1_000_000`.
+These are list-price estimates, not invoices; cache discounts and billing adjustments
+are excluded. Partial failed-run usage is counted when reported, with an incomplete
+usage warning; unavailable usage is never claimed as zero actual cost. Rerendering
+history does not add usage. Clearing chat keeps session totals; a new browser session
+starts new totals. No persistent accounting database is added.
+
+Privacy: official PydanticAI instrumentation disables content, binary content and
+model request parameters. Default Logfire scrubbing stays enabled; no HTTP body
+instrumentation is enabled. Exception events and status descriptions are suppressed
+because they can contain provider payloads. Metadata such as tool names, model,
+tokens, timing and anonymous session IDs still leaves the process. Chat answers and
+existing redacted diagnostics remain in Streamlit session memory; this is not a
+promise that all application memory is free of sensitive text. Use synthetic data.
+
+Monitoring dashboard screenshot: **TODO — add a reviewed screenshot with no secrets
+or question/answer content after verifying the live trace.**
