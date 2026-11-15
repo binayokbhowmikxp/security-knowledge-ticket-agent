@@ -5,3 +5,7 @@ __pycache__/
 *.pyo
 .ipynb_checkpoints/
 .DS_Store
+
+# Local review archives and test logs
+/temp/
+.pytest_cache/

@@ -118,5 +118,85 @@
     "platform": "Web",
     "content": "Synthetic training article; not official vendor guidance. If a custom web connector submits a password-change form but reports failure, inspect sanitized errors and the documented success indicator. Distinguish a form rejection from a missing confirmation step. Confirm the expected workflow with application documentation; do not assume a submitted form means the password changed. Escalate uncertain outcomes without displaying or repeatedly testing passwords.",
     "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-006",
+    "title": "Discovered account inventory reconciliation before onboarding",
+    "category": "onboarding",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. A discovered privileged account is not necessarily an approved managed account. Before onboarding, compare the discovered target, account identifier, account type, and recorded owner with the approved inventory. Review the complete available inventory rather than relying on a partial result when checking for duplicates. If multiple candidates refer to the same account, record the ambiguity and request owner confirmation of the intended record. Do not automatically onboard, delete, merge, or move records to resolve an uncertain match.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-007",
+    "title": "Windows privileged account onboarding type and authorization checks",
+    "category": "onboarding",
+    "platform": "Windows",
+    "content": "Synthetic training article; not official vendor guidance. For Windows privileged-account onboarding, confirm whether the approved inventory describes a local or domain account. Compare the selected management configuration, target identity, account owner, and approved permission scope with that account type. An account may be discovered but remain ineligible for management until required ownership and authorization evidence is available. A missing approval or mismatched account type is an investigation finding, not permission to grant rights or activate management. Request an approved owner review before changing the account or its configuration.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ONB-008",
+    "title": "Initial account verification versus enabled password management",
+    "category": "onboarding",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Treat onboarding status, password-management enablement, initial verification, and scheduled rotation as separate facts. A record marked complete does not prove that a subsequent password change will succeed, and an initial verification result does not establish the next rotation outcome. Compare approved policy selection, management state, verification evidence, and first scheduled event when investigating a newly onboarded account. If results conflict or have not been collected, report the uncertainty and request sanitized execution evidence. Do not force an immediate password change merely to test an incomplete onboarding record.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-006",
+    "title": "Credential verification, change, and recovery are distinct operations",
+    "category": "password_rotation",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Distinguish three credential-management activities: verifying that a managed credential is valid, changing it under the approved lifecycle, and performing an authorized recovery when the current state cannot be confirmed. A successful connection or accepted change request does not by itself establish that subsequent verification succeeded. Review the sanitized status of each attempted stage, relevant timestamps, and the approved account-management policy before reporting a cause. If the credential state is unknown, avoid repeated changes, manual resets, or recovery attempts; refer the decision to the authorized owner.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-007",
+    "title": "Post-change verification mismatch and uncertain credential state",
+    "category": "password_rotation",
+    "platform": "Linux",
+    "content": "Synthetic training article; not official vendor guidance. A Linux password-change workflow may report an attempted update while a later verification stage reports a mismatch or unavailable result. Record the sanitized error, operation stage, timestamps, approved target identity, and relevant service dependency without collecting the password. Do not infer from a verification mismatch that the old password remains valid or that the new password was successfully applied. A rerun or manual change could disrupt dependent jobs when state is uncertain. Request an owner-approved investigation and a documented recovery decision rather than repeating password changes.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-008",
+    "title": "Windows password policy rejections versus account restrictions",
+    "category": "password_rotation",
+    "platform": "Windows",
+    "content": "Synthetic training article; not official vendor guidance. For Windows-managed accounts, distinguish a target password-policy rejection from authentication, authorization, lockout, or disabled-account errors. A sanitized message indicating minimum password age is different evidence from one indicating insufficient rights. Compare the attempted operation time with approved policy requirements and account-state records, and note whether the account is local or domain-managed. Do not weaken password policy, unlock accounts, or broaden permissions as an investigative shortcut. Where source evidence is incomplete, report competing hypotheses instead of declaring a root cause.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "ROT-009",
+    "title": "Rotation schedules, dependent services, and approved change coordination",
+    "category": "password_rotation",
+    "platform": "General",
+    "content": "Synthetic training article; not official vendor guidance. Before interpreting a password-rotation incident, review the approved schedule and the inventory of applications, services, and scheduled jobs that use the managed account. A recorded dependency is a potential impact consideration, not proof of the failure cause. Correlate sanitized execution timestamps and prior approved changes with the relevant maintenance or support window. Where the credential state is uncertain, avoid restarting dependent services, forcing rotation, or changing schedules without authorization. Provide the owner with the affected account identifier, time window, and evidence gaps for a controlled decision.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-006",
+    "title": "Multi-step custom web login flow and conditional screens",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. A custom web connector may encounter separate username, password, and confirmation pages instead of one static login form. Compare the approved application flow with sanitized screenshots and execution stages to identify where an expected field or button was unavailable. Review documented conditional redirects, loading behavior, and supported interactive steps in an authorized test environment. Do not invent selectors, disable authentication controls, or assume a failed element lookup proves a wrong password. Ask the application owner to confirm the supported sequence before proposing any connector change.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-007",
+    "title": "Confirming a successful web login beyond form submission",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. Submitting a web login form or reaching the next page does not by itself establish an authenticated session. Review whether the documented connector checks an authorized post-login indicator that is absent from the initial login page. Distinguish a missing success indicator, a conditional second screen, and an application rejection using sanitized stage logs. Do not treat page navigation as proof of login success or collect session cookies, passwords, or authentication tokens. Request owner-approved test evidence when the expected success signal is unclear.",
+    "source_type": "synthetic"
+  },
+  {
+    "id": "WEB-008",
+    "title": "Custom web connector HTTPS trust and page availability",
+    "category": "web_connector",
+    "platform": "Web",
+    "content": "Synthetic training article; not official vendor guidance. For a web connector failing before login, distinguish target page unavailability, redirect behavior, and an untrusted HTTPS certificate using sanitized error categories and timestamps. Review whether the target certificate is trusted through the approved trust process and whether the expected entry page is reachable. Do not disable certificate validation or use a fallback that exposes managed credentials to an untrusted page. Ask the responsible application and security owners to validate certificate and connection evidence under approved procedures. A certificate warning alone does not establish that the account password is incorrect.",
+    "source_type": "synthetic"
   }
 ]

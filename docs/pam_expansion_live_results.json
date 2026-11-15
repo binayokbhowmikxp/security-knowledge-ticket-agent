@@ -1,0 +1,467 @@
+{
+  "date": "2026-11-14",
+  "runs": [
+    {
+      "scenario": "linux_onboarding",
+      "question": "What should an engineer check when onboarding a Linux privileged account into PAM?",
+      "model": "gpt-4o-mini",
+      "validate_output": false,
+      "monitoring_enabled": true,
+      "status": "completed",
+      "summary": {
+        "answer": "Synthetic training guidance; not official vendor documentation. \n\nWhen onboarding a Linux privileged account into PAM, an engineer should check the following:\n\n1. Confirm the recorded server identifier, hostname, account name, and account purpose with the approved inventory [ONB-001].\n2. Identify whether the account is a local or centrally managed account and ensure that the selected configuration matches that account type [ONB-001].\n3. In case of password rotation configuration after onboarding, verify the recorded account type, target address, selected platform configuration, rotation schedule, and management status against the approved onboarding record [ONB-004].\n4. Ensure the initial validation succeeded and that password management was enabled as intended during onboarding [ONB-004].\n5. Collect information on any discovered accounts to confirm they are approved managed accounts. Compare the discovered account details with the approved inventory [ONB-006].\n\nThese checks will help ensure a proper onboarding process for the Linux privileged account.",
+        "evidence_ids": [
+          "ONB-001",
+          "ONB-004",
+          "ONB-006",
+          "ONB-007",
+          "ROT-001"
+        ],
+        "trace": [
+          {
+            "sequence": 1,
+            "tool": "search_documentation",
+            "tool_call_id": "call_1",
+            "returned_ids": [
+              "ONB-001",
+              "ONB-004",
+              "ONB-006",
+              "ONB-007",
+              "ROT-001"
+            ],
+            "error": null
+          }
+        ],
+        "citation_issues": [],
+        "citation_validation_passed": true,
+        "usage": {
+          "model_requests": 2,
+          "tool_calls": 1,
+          "input_tokens": 2013,
+          "output_tokens": 212,
+          "total_tokens": 2225
+        }
+      },
+      "informational_validation_checks": [],
+      "retry_activity": {
+        "output_retry_observed": false,
+        "output_validation_retry_observed": false,
+        "tool_retry_observed": false,
+        "retry_events": []
+      },
+      "trace_id": "01a1dc1c9c68767c267664d0da2a5eeb",
+      "estimated_usd": 0.00042915,
+      "executed_requests": [
+        {
+          "tool": "search_documentation",
+          "arguments": {
+            "query": "onboarding Linux privileged account PAM"
+          }
+        }
+      ],
+      "offline_replay_of_actual_search_queries": [
+        {
+          "tool": "search_documentation",
+          "query": "onboarding Linux privileged account PAM",
+          "original_ranking": [
+            "ONB-001",
+            "ONB-004",
+            "ROT-001",
+            "ONB-003",
+            "ONB-002"
+          ],
+          "expanded_ranking": [
+            "ONB-001",
+            "ONB-004",
+            "ONB-007",
+            "ROT-001",
+            "ONB-006"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": "password_rotation",
+      "question": "Password rotation failed on LNX-001 shortly after onboarding. Investigate the issue and check whether similar incidents were reported previously.",
+      "model": "gpt-4o-mini",
+      "validate_output": false,
+      "monitoring_enabled": true,
+      "status": "completed",
+      "summary": {
+        "answer": "Synthetic training guidance; not official vendor documentation.\n\n### Current Findings for LNX-001\n- **Asset ID**: LNX-001\n- **Platform**: Linux\n- **Account Identifier**: svc_training_batch\n- **Account Type**: local\n- **Onboarding Status**: complete\n- **Password Management**: enabled\n- **Rotation Schedule**: daily training schedule\n- **Initial Validation**: passed\n- **Last Rotation Status**: failed\n- **Observation**: Sanitized error not yet collected; first rotation followed onboarding.\n- **Dependencies**: Batch job dependency recorded; target policy evidence pending.\n\n### Possible Causes\n1. **Sanitized Error**: The current failure has not collected a sanitized error, which is key to identifying the exact problem.\n2. **Dependency Issues**: A batch job dependency recorded during the onboarding may contribute to rotation failure.\n3. **Configuration Variance**: Past tickets indicate that discrepancies in account configuration can lead to failures.\n\n### Historical Comparisons\n- **TKT-001**: A previous incident reported similar issues where a Linux password rotation failed shortly after onboarding, due to a mismatch in selected account configuration compared to the approved record. The owner corrected this configuration and subsequent validations passed.\n- **TKT-003**: Another related case showed a Linux password rotation timeout due to the target being unavailable, which was resolved through owner intervention.\n  \nIn summary, while there are parallels to previous incidents, the specific cause of the failure for LNX-001 remains undiagnosed due to the absence of collected error evidence. Additional evidence such as sanitized errors, timestamps, or diagnostic information is needed to proceed further.",
+        "evidence_ids": [
+          "LNX-001",
+          "TKT-001",
+          "TKT-003",
+          "TKT-013",
+          "TKT-015"
+        ],
+        "trace": [
+          {
+            "sequence": 1,
+            "tool": "get_asset_details",
+            "tool_call_id": "call_1",
+            "returned_ids": [
+              "LNX-001"
+            ],
+            "error": null
+          },
+          {
+            "sequence": 2,
+            "tool": "search_past_tickets",
+            "tool_call_id": "call_2",
+            "returned_ids": [
+              "TKT-001",
+              "TKT-003",
+              "TKT-013",
+              "TKT-015"
+            ],
+            "error": null
+          }
+        ],
+        "citation_issues": [
+          "Evidence was retrieved but no bracketed citations appear; cite supported findings.",
+          "Missing valid current asset citation; cite a returned ID beside supported findings.",
+          "Missing valid historical ticket citation; cite a returned ID beside supported findings."
+        ],
+        "citation_validation_passed": false,
+        "usage": {
+          "model_requests": 2,
+          "tool_calls": 2,
+          "input_tokens": 1981,
+          "output_tokens": 396,
+          "total_tokens": 2377
+        }
+      },
+      "informational_validation_checks": [
+        [
+          "missing_citation",
+          "Evidence was retrieved but no bracketed citations appear; cite supported findings."
+        ],
+        [
+          "missing_citation",
+          "Missing valid current asset citation; cite a returned ID beside supported findings."
+        ],
+        [
+          "missing_citation",
+          "Missing valid historical ticket citation; cite a returned ID beside supported findings."
+        ]
+      ],
+      "retry_activity": {
+        "output_retry_observed": false,
+        "output_validation_retry_observed": false,
+        "tool_retry_observed": false,
+        "retry_events": []
+      },
+      "trace_id": "01a1dc1cb5619679b4da69e96d1a9fd3",
+      "estimated_usd": 0.00053475,
+      "executed_requests": [
+        {
+          "tool": "get_asset_details",
+          "arguments": {
+            "asset_id": "LNX-001"
+          }
+        },
+        {
+          "tool": "search_past_tickets",
+          "arguments": {
+            "query": "password rotation failed"
+          }
+        }
+      ],
+      "offline_replay_of_actual_search_queries": [
+        {
+          "tool": "search_past_tickets",
+          "query": "password rotation failed",
+          "original_ranking": [
+            "TKT-003",
+            "TKT-001",
+            "TKT-009",
+            "TKT-002"
+          ],
+          "expanded_ranking": [
+            "TKT-003",
+            "TKT-001",
+            "TKT-015",
+            "TKT-013"
+          ]
+        }
+      ]
+    },
+    {
+      "scenario": "web_connector",
+      "question": "The custom web connector for APP-001 cannot locate the login element. What should I investigate?",
+      "model": "gpt-4o-mini",
+      "validate_output": false,
+      "monitoring_enabled": true,
+      "status": "completed",
+      "summary": {
+        "answer": "Synthetic training guidance; not official vendor documentation. \n\nTo investigate the issue where the custom web connector for APP-001 cannot locate the login element, consider the following steps based on relevant documentation:\n\n1. **Element Structure Changes**: Review the current application page structure compared to the documented expectations for the connector. Changes in element identifiers or labels could explain the failure to locate the login element [WEB-001].\n\n2. **Multi-step Login Flow**: Determine if the application uses a multi-step login process, where separate screens for username, password, and confirmation might be present instead of a single static form. Ensure that you verify the supported login sequence with the application owner and compare with any current approved application flows [WEB-006].\n\n3. **Timing and Loading Issues**: Look into possible timing-related failures. A slow-loading page might mean that the expected login element wasn't present at the time the connector checked for it. Analyze timestamps and ensure the connector's waiting behavior aligns with the application's loading times [WEB-004].\n\n4. **Review Application Configuration**: Lastly, analyze any recent application changes or configurations that could have impacted the login process, and consult sanitized screenshots to confirm element visibility during the connection attempt.\n\nIf specific errors or timestamps are missing from your investigation, it may help to gather this information for a deeper analysis.",
+        "evidence_ids": [
+          "WEB-001",
+          "WEB-002",
+          "WEB-004",
+          "WEB-005",
+          "WEB-006"
+        ],
+        "trace": [
+          {
+            "sequence": 1,
+            "tool": "search_documentation",
+            "tool_call_id": "call_1",
+            "returned_ids": [
+              "WEB-001",
+              "WEB-002",
+              "WEB-004",
+              "WEB-005",
+              "WEB-006"
+            ],
+            "error": null
+          }
+        ],
+        "citation_issues": [],
+        "citation_validation_passed": true,
+        "usage": {
+          "model_requests": 2,
+          "tool_calls": 1,
+          "input_tokens": 1968,
+          "output_tokens": 286,
+          "total_tokens": 2254
+        }
+      },
+      "informational_validation_checks": [
+        [
+          "unsupported_documentation_guidance",
+          "Technical web connector guidance needs a nearby returned documentation citation with matching topic evidence. Retrieve documentation or omit the procedure and explain that documentation evidence is unavailable."
+        ],
+        [
+          "unsupported_documentation_guidance",
+          "Technical configuration guidance needs a nearby returned documentation citation with matching topic evidence. Retrieve documentation or omit the procedure and explain that documentation evidence is unavailable."
+        ]
+      ],
+      "retry_activity": {
+        "output_retry_observed": false,
+        "output_validation_retry_observed": false,
+        "tool_retry_observed": false,
+        "retry_events": []
+      },
+      "trace_id": "01a1dc1cd7b70e6f5e89f8b9b4147379",
+      "estimated_usd": 0.00046679999999999996,
+      "executed_requests": [
+        {
+          "tool": "search_documentation",
+          "arguments": {
+            "query": "custom web connector login element problem"
+          }
+        }
+      ],
+      "offline_replay_of_actual_search_queries": [
+        {
+          "tool": "search_documentation",
+          "query": "custom web connector login element problem",
+          "original_ranking": [
+            "WEB-001",
+            "WEB-004",
+            "WEB-002",
+            "WEB-005",
+            "WEB-003"
+          ],
+          "expanded_ranking": [
+            "WEB-001",
+            "WEB-006",
+            "WEB-004",
+            "WEB-005",
+            "WEB-002"
+          ]
+        }
+      ]
+    }
+  ],
+  "logfire": {
+    "monitoring_enabled": true,
+    "trace_export_http_statuses": [
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200,
+      200
+    ]
+  },
+  "representative_rankings": {
+    "linux_onboarding": {
+      "query": "Linux privileged account onboarding",
+      "documentation": [
+        "ONB-001",
+        "ONB-004",
+        "ROT-001",
+        "ONB-003",
+        "ROT-002"
+      ],
+      "tickets": [
+        "TKT-004",
+        "TKT-005",
+        "TKT-001",
+        "TKT-002"
+      ],
+      "expanded_documentation": [
+        "ONB-001",
+        "ONB-004",
+        "ONB-007",
+        "ROT-001",
+        "ONB-006"
+      ],
+      "expanded_tickets": [
+        "TKT-004",
+        "TKT-010",
+        "TKT-005",
+        "TKT-011"
+      ]
+    },
+    "windows_onboarding": {
+      "query": "Windows local domain onboarding approval",
+      "documentation": [
+        "ONB-004",
+        "ONB-003",
+        "ONB-002",
+        "ONB-001",
+        "ONB-005"
+      ],
+      "tickets": [
+        "TKT-004",
+        "TKT-005",
+        "TKT-001"
+      ],
+      "expanded_documentation": [
+        "ONB-007",
+        "ROT-008",
+        "ONB-004",
+        "ONB-003",
+        "ONB-001"
+      ],
+      "expanded_tickets": [
+        "TKT-004",
+        "TKT-011",
+        "TKT-010",
+        "TKT-005"
+      ]
+    },
+    "password_rotation": {
+      "query": "Linux password rotation failed verification mismatch",
+      "documentation": [
+        "ONB-004",
+        "ROT-001",
+        "ROT-002",
+        "ROT-004",
+        "ONB-001"
+      ],
+      "tickets": [
+        "TKT-003",
+        "TKT-001",
+        "TKT-009",
+        "TKT-002"
+      ],
+      "expanded_documentation": [
+        "ROT-007",
+        "ONB-004",
+        "ROT-001",
+        "ROT-002",
+        "ROT-004"
+      ],
+      "expanded_tickets": [
+        "TKT-013",
+        "TKT-003",
+        "TKT-001",
+        "TKT-012"
+      ]
+    },
+    "windows_rotation": {
+      "query": "Windows password rotation policy rejection",
+      "documentation": [
+        "ROT-003",
+        "ROT-001",
+        "ONB-004",
+        "ROT-002",
+        "ROT-005"
+      ],
+      "tickets": [
+        "TKT-009",
+        "TKT-003",
+        "TKT-002",
+        "TKT-001"
+      ],
+      "expanded_documentation": [
+        "ROT-008",
+        "ONB-007",
+        "ROT-003",
+        "ONB-004",
+        "ROT-001"
+      ],
+      "expanded_tickets": [
+        "TKT-009",
+        "TKT-014",
+        "TKT-003",
+        "TKT-015"
+      ]
+    },
+    "web_connectors": {
+      "query": "custom web connector login element multi-step",
+      "documentation": [
+        "WEB-001",
+        "WEB-003",
+        "WEB-005",
+        "WEB-004",
+        "WEB-002"
+      ],
+      "tickets": [
+        "TKT-006",
+        "TKT-007",
+        "TKT-008"
+      ],
+      "expanded_documentation": [
+        "WEB-006",
+        "WEB-001",
+        "WEB-003",
+        "WEB-005",
+        "WEB-004"
+      ],
+      "expanded_tickets": [
+        "TKT-006",
+        "TKT-018",
+        "TKT-017",
+        "TKT-016"
+      ]
+    },
+    "historical_tickets": {
+      "query": "LNX-001 password rotation failed shortly after onboarding",
+      "documentation": [
+        "ONB-004",
+        "ONB-003",
+        "ONB-002",
+        "ONB-005",
+        "ONB-001"
+      ],
+      "tickets": [
+        "TKT-004",
+        "TKT-001",
+        "TKT-005",
+        "TKT-003"
+      ],
+      "expanded_documentation": [
+        "ONB-004",
+        "ONB-008",
+        "ONB-003",
+        "ONB-002",
+        "ONB-006"
+      ],
+      "expanded_tickets": [
+        "TKT-001",
+        "TKT-004",
+        "TKT-005",
+        "TKT-010"
+      ]
+    }
+  }
+}

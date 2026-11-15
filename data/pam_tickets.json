@@ -79,5 +79,59 @@
     "investigation_findings": "Historical sanitized error indicated minimum password age rejection.",
     "documented_outcome": "Owner aligned the approved schedule after policy review; historical validation passed.",
     "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-013",
+    "issue_summary": "Linux post-change verification mismatch after attempted rotation",
+    "category": "password_rotation",
+    "related_asset": "LNX-005",
+    "investigation_findings": "Historical sanitized workflow reported an attempted password update followed by failed verification; records did not establish which credential state remained valid.",
+    "documented_outcome": "Owner initiated an approved credential-state investigation rather than blindly repeating rotation. The current LNX-005 mismatch is likewise not diagnosed by the old ticket.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-014",
+    "issue_summary": "Windows domain password change rejected by minimum-age policy",
+    "category": "password_rotation",
+    "related_asset": "WIN-003",
+    "investigation_findings": "Historical sanitized error identified a minimum password age restriction for an attempted change on the domain-managed account.",
+    "documented_outcome": "Policy owner reviewed the historical schedule through an approved process; no policy bypass was attempted. Current WIN-003 rejection requires separate evidence review.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-015",
+    "issue_summary": "Windows account-management request blocked by missing authorization",
+    "category": "password_rotation",
+    "related_asset": "WIN-002",
+    "investigation_findings": "A historical request to prepare a future password-management workflow was blocked because approval for required account permissions had not been recorded; no actual rotation ran.",
+    "documented_outcome": "Request remained on hold for owner authorization. The incident was not a successful or failed production password change.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-016",
+    "issue_summary": "Custom web connector misses password field on second login screen",
+    "category": "web_connector",
+    "related_asset": "APP-004",
+    "investigation_findings": "Historical sanitized test reached the username screen, then failed to identify the next password field on a conditional second page.",
+    "documented_outcome": "Application owner documented the expected two-stage login flow; a separate approved test review was requested. No interactive control was bypassed.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-017",
+    "issue_summary": "Custom web connector blocked by untrusted HTTPS certificate",
+    "category": "web_connector",
+    "related_asset": "APP-004",
+    "investigation_findings": "A historical sanitized browser error identified that the target HTTPS certificate was not trusted by the connector host.",
+    "documented_outcome": "The historical issue was referred for approved trust-store review. Certificate validation was not disabled, and this finding does not diagnose the present APP-004 login issue.",
+    "source_type": "synthetic"
+  },
+  {
+    "ticket_id": "TKT-018",
+    "issue_summary": "Web login form submitted without confirmed authenticated session",
+    "category": "web_connector",
+    "related_asset": "APP-004",
+    "investigation_findings": "Historical test navigated past the submit step but lacked evidence of the required post-login success indicator.",
+    "documented_outcome": "Owner requested a documented login-success indicator for an approved test. The historical form submission was not treated as proof of authentication.",
+    "source_type": "synthetic"
   }
 ]

@@ -192,3 +192,56 @@ tool call; 1,926 input / 283 output tokens, estimated $0.00045870. Root, agent, 
 model and one tool span were observed under one trace, with HTTP 200 trace-ingestion
 acknowledgements. Dashboard visibility was not independently inspected. Informational
 citation checks passed; this does not establish claim-level factual correctness.
+
+## Data expansion review (2026-11-14)
+
+On feature/streamlit-ui, the supplied synthetic expansion increases knowledge/assets/tickets to 25/12/18 while preserving every original record. Offline baseline: 164 passed, 5 skipped; expanded: 143 passed, 21 failed, 5 skipped. Broad-query historical retrieval regressed. Three authorized real gpt-4o-mini investigations used the existing Streamlit validation opt-out; citation/documentation issues remain. See docs/pam_expansion_review_results.md and docs/pam_expansion_live_results.json. No production behavior or assertions were changed; this describes the initial review before the accepted curation below.
+
+Data-only resolution: excluded new TKT-010/TKT-011/TKT-012 to restore mixed-query historical retrieval without rewriting records or changing production behavior/tests. Final counts: 25/12/15. Full offline suite: 164 passed, 5 skipped, 19 subtests passed; one existing warning. No additional API calls. Review report and pam_expansion_retrieval_resolution.json document exact failure groups, exclusion analysis, rankings and coverage limitations. The curated datasets and offline contracts were subsequently reviewed and accepted.
+
+## Capstone Question 1 batch execution
+
+The approved evaluation set contains exactly 50 scenarios: 15 happy_path, 12
+varied_phrasing, 10 edge_case, 6 out_of_scope and 7 breaking. The small
+`evals/run_batch.py` runner validates offline by default and requires `--live` for
+paid execution. It reuses the existing PydanticAI agent in Streamlit's
+validate_output=False mode and existing metadata-only monitoring. Durable
+started/result JSONL events prevent automatic repetition after failure or
+interruption; resume requires matching scenario, data and code fingerprints.
+This increment records real executions, not gold labels or answer-quality scores;
+no LLM judge or production behavior changes are included. See evals/batch_report.md
+for the completed batch outcome.
+
+Question 1 batch completed: 50/50 real-model investigations returned answers, no
+execution failures, 88 model requests and 52 tool calls. Reported usage totals
+80,382 input/11,727 output tokens; estimated USD 0.01909350 at existing monitoring
+rates. Informational citation checks failed on 27 answers, and full informational
+checks flagged 33 scenarios; these are not gold labels or quality scores. All
+results and traces are preserved in evals/results.jsonl and the 50-row results.csv
+export. No retries, judge calls or further experiments were launched.
+Question 1 collection is complete; answer-level review remains necessary. See evals/batch_report.md.
+
+## Question 1 finalized (2026-11-15)
+
+Question 1 designs scenarios and collects real-agent outputs for later review;
+it does not establish correctness or create gold labels. The accepted 50-row set
+covers 13 onboarding, 16 password_rotation, 15 web_connector and six out_of_scope
+questions, including Windows/Linux, historical comparisons, missing evidence and
+safety/grounding boundaries. The curated data remains 25 articles/12 assets/15
+tickets, with all original records intact.
+
+Execution returned 50 answers, zero execution failures, 92,109 reported tokens
+and an estimated USD 0.01909350. All 50 have Logfire trace IDs. Citation checks
+failed on 27 answers; full informational checks flagged 33 scenarios including
+citation findings. Execution success is not answer correctness. Existing Logfire
+spans support tool/usage investigation without sending question/answer contents;
+ingestion acknowledgements do not prove dashboard visibility or answer quality.
+
+Reproduction and safe resume commands, scenario distribution, artifact links and
+limitations are documented in README.md. `evals/results.jsonl` preserves started
+and terminal events; `evals/results.csv` provides 50 review rows. The runner hashes
+scenarios, datasets and code, preserves validation opt-out and existing agent
+budgets, and skips all previously started investigations. Offline verification:
+172 passed, 5 skipped and 19 subtests passed, with one existing warning. No new
+API calls, gold labels or judge implementation are part of finalization. Question 2
+has not started.

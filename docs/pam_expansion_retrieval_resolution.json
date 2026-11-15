@@ -1,0 +1,623 @@
+{
+  "scope": "offline only; no API calls",
+  "counts": {
+    "original": {
+      "pam_tickets": 9,
+      "pam_knowledge": 15,
+      "pam_assets": 7
+    },
+    "full_expansion": {
+      "pam_tickets": 18,
+      "pam_knowledge": 25,
+      "pam_assets": 12
+    },
+    "curated": {
+      "pam_tickets": 15,
+      "pam_knowledge": 25,
+      "pam_assets": 12
+    }
+  },
+  "excluded_ids": [
+    "TKT-010",
+    "TKT-011",
+    "TKT-012"
+  ],
+  "rankings": {
+    "linux_onboarding": {
+      "query": "Linux privileged account onboarding",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-001",
+          "TKT-002"
+        ],
+        "full_expansion": [
+          "TKT-004",
+          "TKT-010",
+          "TKT-005",
+          "TKT-011"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-001",
+          "TKT-002"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-001",
+          "ONB-004",
+          "ROT-001",
+          "ONB-003",
+          "ROT-002"
+        ],
+        "full_expansion": [
+          "ONB-001",
+          "ONB-004",
+          "ONB-007",
+          "ROT-001",
+          "ONB-006"
+        ],
+        "curated": [
+          "ONB-001",
+          "ONB-004",
+          "ONB-007",
+          "ROT-001",
+          "ONB-006"
+        ]
+      }
+    },
+    "windows_onboarding": {
+      "query": "Windows local domain onboarding approval",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-004",
+          "TKT-011",
+          "TKT-010",
+          "TKT-005"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-014",
+          "TKT-001"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ONB-003",
+          "ONB-002",
+          "ONB-001",
+          "ONB-005"
+        ],
+        "full_expansion": [
+          "ONB-007",
+          "ROT-008",
+          "ONB-004",
+          "ONB-003",
+          "ONB-001"
+        ],
+        "curated": [
+          "ONB-007",
+          "ROT-008",
+          "ONB-004",
+          "ONB-003",
+          "ONB-001"
+        ]
+      }
+    },
+    "password_rotation": {
+      "query": "Linux password rotation failed verification mismatch",
+      "pam_tickets": {
+        "original": [
+          "TKT-003",
+          "TKT-001",
+          "TKT-009",
+          "TKT-002"
+        ],
+        "full_expansion": [
+          "TKT-013",
+          "TKT-003",
+          "TKT-001",
+          "TKT-012"
+        ],
+        "curated": [
+          "TKT-013",
+          "TKT-003",
+          "TKT-001",
+          "TKT-015"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004",
+          "ONB-001"
+        ],
+        "full_expansion": [
+          "ROT-007",
+          "ONB-004",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "curated": [
+          "ROT-007",
+          "ONB-004",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ]
+      }
+    },
+    "windows_rotation": {
+      "query": "Windows password rotation policy rejection",
+      "pam_tickets": {
+        "original": [
+          "TKT-009",
+          "TKT-003",
+          "TKT-002",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-009",
+          "TKT-014",
+          "TKT-003",
+          "TKT-015"
+        ],
+        "curated": [
+          "TKT-009",
+          "TKT-014",
+          "TKT-003",
+          "TKT-015"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ROT-003",
+          "ROT-001",
+          "ONB-004",
+          "ROT-002",
+          "ROT-005"
+        ],
+        "full_expansion": [
+          "ROT-008",
+          "ONB-007",
+          "ROT-003",
+          "ONB-004",
+          "ROT-001"
+        ],
+        "curated": [
+          "ROT-008",
+          "ONB-007",
+          "ROT-003",
+          "ONB-004",
+          "ROT-001"
+        ]
+      }
+    },
+    "web_connectors": {
+      "query": "custom web connector login element multi-step",
+      "pam_tickets": {
+        "original": [
+          "TKT-006",
+          "TKT-007",
+          "TKT-008"
+        ],
+        "full_expansion": [
+          "TKT-006",
+          "TKT-018",
+          "TKT-017",
+          "TKT-016"
+        ],
+        "curated": [
+          "TKT-006",
+          "TKT-018",
+          "TKT-017",
+          "TKT-016"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "WEB-001",
+          "WEB-003",
+          "WEB-005",
+          "WEB-004",
+          "WEB-002"
+        ],
+        "full_expansion": [
+          "WEB-006",
+          "WEB-001",
+          "WEB-003",
+          "WEB-005",
+          "WEB-004"
+        ],
+        "curated": [
+          "WEB-006",
+          "WEB-001",
+          "WEB-003",
+          "WEB-005",
+          "WEB-004"
+        ]
+      }
+    },
+    "historical_tickets": {
+      "query": "LNX-001 password rotation failed shortly after onboarding",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-001",
+          "TKT-005",
+          "TKT-003"
+        ],
+        "full_expansion": [
+          "TKT-001",
+          "TKT-004",
+          "TKT-005",
+          "TKT-010"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-001",
+          "TKT-005",
+          "TKT-003"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ONB-003",
+          "ONB-002",
+          "ONB-005",
+          "ONB-001"
+        ],
+        "full_expansion": [
+          "ONB-004",
+          "ONB-008",
+          "ONB-003",
+          "ONB-002",
+          "ONB-006"
+        ],
+        "curated": [
+          "ONB-004",
+          "ONB-008",
+          "ONB-003",
+          "ONB-002",
+          "ONB-006"
+        ]
+      }
+    },
+    "regression_notebook": {
+      "query": "Linux password rotation onboarding",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-004",
+          "TKT-010",
+          "TKT-012",
+          "TKT-011"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "full_expansion": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "curated": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ]
+      }
+    },
+    "regression_framework": {
+      "query": "Linux password rotation failed onboarding",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-004",
+          "TKT-010",
+          "TKT-012",
+          "TKT-011"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "full_expansion": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "curated": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ]
+      }
+    },
+    "regression_validation": {
+      "query": "Linux rotation failed onboarding",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-004",
+          "TKT-010",
+          "TKT-011",
+          "TKT-012"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "full_expansion": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "curated": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ]
+      }
+    },
+    "regression_private_marker": {
+      "query": "PRIVATE_CORRECTION_MARKER Linux rotation failed onboarding",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-004",
+          "TKT-010",
+          "TKT-011",
+          "TKT-012"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-003",
+          "TKT-001"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "full_expansion": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ],
+        "curated": [
+          "ONB-004",
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004"
+        ]
+      }
+    },
+    "duplicate_discovery": {
+      "query": "discovered duplicate Linux inventory",
+      "pam_tickets": {
+        "original": [
+          "TKT-005",
+          "TKT-003",
+          "TKT-002",
+          "TKT-004"
+        ],
+        "full_expansion": [
+          "TKT-005",
+          "TKT-010",
+          "TKT-003",
+          "TKT-004"
+        ],
+        "curated": [
+          "TKT-005",
+          "TKT-003",
+          "TKT-002",
+          "TKT-004"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-001",
+          "ONB-004",
+          "ROT-002",
+          "ROT-001",
+          "ROT-004"
+        ],
+        "full_expansion": [
+          "ONB-001",
+          "ONB-004",
+          "ROT-002",
+          "ROT-004",
+          "ROT-001"
+        ],
+        "curated": [
+          "ONB-001",
+          "ONB-004",
+          "ROT-002",
+          "ROT-004",
+          "ROT-001"
+        ]
+      }
+    },
+    "windows_permission": {
+      "query": "Windows local account onboarding authorized permission scope",
+      "pam_tickets": {
+        "original": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-001",
+          "TKT-002"
+        ],
+        "full_expansion": [
+          "TKT-011",
+          "TKT-004",
+          "TKT-010",
+          "TKT-005"
+        ],
+        "curated": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-001",
+          "TKT-015"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-001",
+          "ONB-004",
+          "ONB-003",
+          "ONB-002",
+          "ONB-005"
+        ],
+        "full_expansion": [
+          "ONB-007",
+          "ROT-008",
+          "ONB-001",
+          "ONB-006",
+          "ONB-004"
+        ],
+        "curated": [
+          "ONB-007",
+          "ROT-008",
+          "ONB-001",
+          "ONB-006",
+          "ONB-004"
+        ]
+      }
+    },
+    "initial_verification": {
+      "query": "initial verification password management enabled",
+      "pam_tickets": {
+        "original": [
+          "TKT-009",
+          "TKT-003",
+          "TKT-002",
+          "TKT-001"
+        ],
+        "full_expansion": [
+          "TKT-012",
+          "TKT-015",
+          "TKT-013",
+          "TKT-009"
+        ],
+        "curated": [
+          "TKT-015",
+          "TKT-013",
+          "TKT-009",
+          "TKT-014"
+        ]
+      },
+      "pam_knowledge": {
+        "original": [
+          "ONB-004",
+          "ROT-001",
+          "ROT-003",
+          "ROT-004",
+          "WEB-005"
+        ],
+        "full_expansion": [
+          "ONB-008",
+          "ONB-004",
+          "ROT-007",
+          "ROT-006",
+          "ROT-001"
+        ],
+        "curated": [
+          "ONB-008",
+          "ONB-004",
+          "ROT-007",
+          "ROT-006",
+          "ROT-001"
+        ]
+      }
+    }
+  }
+}

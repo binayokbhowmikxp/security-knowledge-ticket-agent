@@ -67,7 +67,7 @@ For example, a ticket might ask: "Password rotation failed for a Linux privilege
 
 ## Current Status
 
-The repository contains setup and Week 1 RAG notebooks, plus a Week 2 agent notebook using the OpenAI Responses API. One agent dynamically selects among three read-only tools over 15 synthetic knowledge articles, 7 synthetic assets, and 9 historical tickets. The agent notebook includes concise traces and three live smoke scenarios; offline regression tests cover validation, missing evidence, conversation handling, and loop limits. Full labelled evaluation remains planned.
+The repository contains setup and Week 1 RAG notebooks, plus a Week 2 agent notebook using the OpenAI Responses API. One agent dynamically selects among three read-only tools over 25 synthetic knowledge articles, 12 synthetic assets, and 15 historical tickets. The agent notebook includes concise traces and three live smoke scenarios; offline regression tests cover validation, missing evidence, conversation handling, and loop limits. Full labelled evaluation remains planned.
 
 The MVP will use only permitted public documentation and synthetic asset records and tickets. It will not access real customer data or credentials, connect to live vendor systems, or change accounts or passwords.
 
@@ -500,8 +500,8 @@ Open the local URL printed by Streamlit (normally http://localhost:8501).
 Submitting a question makes paid OpenAI API requests; merely starting the app does
 not. The sidebar's Clear conversation button removes displayed session history.
 History is **visual only**: each question executes independently, without previous
-turns being sent to the model. There is no streaming, persistent history, judge,
-monitoring, authentication, or deployment layer in this UI.
+turns being sent to the model. There is no streaming, persistent history, judge, authentication or deployment
+layer in this UI. Optional metadata-only monitoring is described below.
 
 To manually verify one real UI investigation, submit this once:
 
@@ -559,3 +559,114 @@ promise that all application memory is free of sensitive text. Use synthetic dat
 
 Monitoring dashboard screenshot: **TODO — add a reviewed screenshot with no secrets
 or question/answer content after verifying the live trace.**
+
+## Accepted curated data
+
+The curated knowledge base contains **25 synthetic articles, 12 assets and 15
+historical tickets**. Every original record and schema is preserved. Three new
+onboarding tickets were excluded after retrieval review; the original 164 offline
+contracts then passed. The data and 50 evaluation scenarios have been reviewed
+and accepted. See [the expansion review](docs/pam_expansion_review_results.md) and
+[source notes](docs/pam_expansion_sources.md) for provenance and ranking tradeoffs.
+
+## Capstone Evaluation — Question 1: Design Scenarios and Collect Data
+
+Question 1 is complete. Its purpose is to collect reproducible examples of how
+one read-only PAM agent selects tools, retrieves evidence and answers realistic
+engineering questions, including insufficient-evidence and adversarial requests.
+It does not measure answer correctness or assign gold labels.
+
+[The approved scenarios](evals/scenarios.csv) contain exactly 50 questions with
+columns `question,category,type`; CSV row order defines IDs S001–S050.
+
+| Scenario type | Count |
+|---|---:|
+| happy_path | 15 |
+| varied_phrasing | 12 |
+| edge_case | 10 |
+| out_of_scope | 6 |
+| breaking | 7 |
+
+Topic coverage is 13 onboarding, 16 password rotation, 15 web connector and six
+out-of-scope questions. It includes Linux and Windows account onboarding,
+verification and policy failures, historical incident comparisons, ambiguous or
+missing assets, insufficient diagnostics, and attempts to obtain unsupported
+root causes, fabricated citations or unauthorized privileged actions.
+
+The real batch reused the existing PydanticAI `gpt-4o-mini` agent through
+`investigate_with_evidence(question, validate_output=False)`, matching Streamlit.
+The existing six-request/eight-tool budgets and tool-validation behavior were
+preserved. Each scenario was investigated once; SDK transport retries were disabled.
+No mocks or LLM judge were used for collection.
+
+Validate locally without API calls (after installing the project dependencies):
+
+```sh
+.venv/bin/python evals/run_batch.py --dry-run
+.venv/bin/python -m pytest -q
+```
+
+To execute only unstarted scenarios, the explicit `--live` flag is required and
+makes paid OpenAI requests. The runner requires `feature/streamlit-ui`. Configure
+`OPENAI_API_KEY` locally and optionally `LOGFIRE_TOKEN`; never commit `.env`.
+
+```sh
+.venv/bin/python evals/run_batch.py --live
+```
+
+The committed batch is already complete: dry-run reports **0 unstarted** scenarios,
+and the live command does not repeat its investigations. The same command on a
+fresh collection without a journal would incur API costs. Preserve the committed
+results; a deliberately separate new collection requires separate authorization.
+Exact model wording is nondeterministic even with identical inputs.
+
+[The runner](evals/run_batch.py) validates columns, types, nonempty questions,
+uniqueness and the approved distribution. Its append-only
+[JSONL journal](evals/results.jsonl) contains one durable `started` reservation
+before each call and one `result` afterward: **100 events, 50 answers**. Resume
+skips every started scenario, including failures and interrupted attempts, to avoid
+repeating an uncertain request. A process lock prevents concurrent batches.
+Changed scenario/data/code SHA-256 fingerprints or a malformed journal stop resume
+for manual review. Fingerprints, dependency versions, UTC timestamps, model and
+validation mode are saved with each event.
+
+[The CSV export](evals/results.csv) contains the 50 terminal results for manual
+review. Both formats retain generated answers, executed tools, safe traces,
+evidence IDs, informational checks, reported usage, cost estimates and trace IDs.
+[The batch report](evals/batch_report.md) records detailed findings and limitations.
+
+| Observed execution statistic | Result |
+|---|---:|
+| Investigations completed / execution failures | 50 / 0 |
+| Model requests / executed tool calls | 88 / 52 |
+| Input / output tokens | 80,382 / 11,727 |
+| Total tokens | 92,109 |
+| Estimated API cost (USD) | $0.01909350 |
+| Informational citation checks failed | 27 answers |
+| Full informational checks flagged | 33 scenarios |
+| Recorded Logfire trace IDs | 50 |
+| Final offline tests | 172 passed, 5 skipped |
+
+Tool execution totals were 14 documentation searches, 24 asset lookups and 14
+historical-ticket searches. No execution failures or output/tool retries were
+observed. The cost uses existing monitoring rates of $0.15 input and $0.60 output
+per million tokens; it is an estimate, not an invoice, and excludes cache discounts
+and billing adjustments. Offline verification also passed 19 subtests, with one
+existing event-loop deprecation warning; the five skipped tests require paid opt-in.
+
+**Successful execution is not proof of a correct answer.** Citation membership
+checks found omitted/malformed citations and unretrieved references; documentation
+checks also flagged guidance needing nearby supporting evidence. These checks
+were informational and did not reject or repair answers. They do not prove
+claim-level support, safe advice, correct tool selection or a current root cause.
+Historical incidents cannot establish current causes. The 33 flags include the
+citation findings and are not 33 additional failures. Manual answer review remains
+necessary; no gold answers, answer-quality scores or new judge were produced.
+
+Logfire provides metadata-only root, agent, model and tool spans for monitoring
+usage, timing and tool activity. Saved trace IDs help locate individual
+investigations. Existing instrumentation excludes question/answer contents, raw
+provider history, credentials and exception payloads. The retained rolling export
+buffer showed HTTP 200 ingestion acknowledgements; dashboard visibility was not
+independently verified. Temporary monitoring exports, locks, caches, ZIP files and
+`.env` are excluded from version control. Question 2 has not started.
