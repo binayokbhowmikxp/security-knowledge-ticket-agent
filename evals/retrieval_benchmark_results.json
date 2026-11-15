@@ -1,0 +1,893 @@
+{
+  "metadata": {
+    "relevance_status": "Handcrafted draft judgments, not independently verified ground truth",
+    "aggregation": "Unweighted macro-average across queries; overall mixes collection-specific K",
+    "keyword_rule": "Unique lowercase word-token intersection, >=2 Unicode word characters; no stop words; original corpus order breaks ties; positive scores only",
+    "collection_specs": {
+      "documentation": {
+        "filename": "pam_knowledge.json",
+        "id_field": "id",
+        "k": 5,
+        "text_fields": [
+          "title",
+          "content",
+          "category",
+          "platform"
+        ]
+      },
+      "tickets": {
+        "filename": "pam_tickets.json",
+        "id_field": "ticket_id",
+        "k": 4,
+        "text_fields": [
+          "issue_summary",
+          "category",
+          "related_asset",
+          "investigation_findings",
+          "documented_outcome"
+        ]
+      }
+    },
+    "fingerprints": {
+      "evals/retrieval_questions.csv": "1b6040d51ec54c990d7356591c3670140e5a39ca17915671773e3e5a46fac012",
+      "evals/retrieval_benchmark.py": "eb44234a7bde8882a9abfb885d5f9bf2623da1f766487666fb327796dc962a0c",
+      "pam_tools.py": "ecb18d0dc8cd0b463eb041fe301c1a8a8526d87a933acfeb23109e389069dcd2",
+      "data/pam_knowledge.json": "2e5151f81a4e3a533ec378200edd44a3a356f82295b3a60c0cba81732af3a51c",
+      "data/pam_tickets.json": "bb20f8e0c9cf7969dae219dd56357b73da828cc7b07de7a33d349be0e2fa7b9a",
+      "uv.lock": "a0118e582e0f3a586801c4d905cf42ca50c561505c9e280453aa4f686d5600a8"
+    },
+    "python_version": "3.13.15",
+    "versions": {
+      "minsearch": "0.2.0",
+      "numpy": "2.5.3",
+      "scikit-learn": "1.9.1"
+    }
+  },
+  "summary": {
+    "documentation": {
+      "query_count": 10,
+      "tfidf": {
+        "hit_at_1": 0.9,
+        "hit_at_k": 1.0,
+        "recall_at_k": 0.7416666666666667,
+        "mrr_at_k": 0.95
+      },
+      "keyword": {
+        "hit_at_1": 1.0,
+        "hit_at_k": 1.0,
+        "recall_at_k": 0.9,
+        "mrr_at_k": 1.0
+      }
+    },
+    "tickets": {
+      "query_count": 10,
+      "tfidf": {
+        "hit_at_1": 0.9,
+        "hit_at_k": 1.0,
+        "recall_at_k": 1.0,
+        "mrr_at_k": 0.9333333333333333
+      },
+      "keyword": {
+        "hit_at_1": 0.9,
+        "hit_at_k": 1.0,
+        "recall_at_k": 1.0,
+        "mrr_at_k": 0.95
+      }
+    },
+    "overall": {
+      "query_count": 20,
+      "tfidf": {
+        "hit_at_1": 0.9,
+        "hit_at_k": 1.0,
+        "recall_at_k": 0.8708333333333333,
+        "mrr_at_k": 0.9416666666666667
+      },
+      "keyword": {
+        "hit_at_1": 0.95,
+        "hit_at_k": 1.0,
+        "recall_at_k": 0.95,
+        "mrr_at_k": 0.975
+      }
+    }
+  },
+  "queries": [
+    {
+      "query": "Linux privileged account identity checks: hostname, account name, purpose and local versus centrally managed account.",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ONB-001",
+        "ONB-006"
+      ],
+      "relevance_reason": "ONB-001 directly covers Linux identity and account type; ONB-006 gives general target/account/type reconciliation against approved inventory. Windows-specific and post-failure articles are not direct identity-onboarding answers.",
+      "benchmark_id": "R01",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ONB-001",
+          "ROT-001",
+          "ROT-002",
+          "ROT-004",
+          "ONB-004"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.5,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ONB-001",
+          "ROT-001",
+          "ONB-007",
+          "ROT-008",
+          "ROT-002"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.5,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Windows local versus domain account onboarding: who approves the permission scope and management configuration?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ONB-003",
+        "ONB-007"
+      ],
+      "relevance_reason": "ONB-007 covers Windows account type, configuration and authorized scope; ONB-003 supplies general ownership and permission approval requirements.",
+      "benchmark_id": "R02",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ONB-007",
+          "ROT-008",
+          "ONB-004",
+          "ONB-008",
+          "ONB-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.5,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ONB-007",
+          "ROT-008",
+          "ONB-001",
+          "ONB-004",
+          "ONB-005"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.5,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Linux initial verification passed when onboarding finished, but the first scheduled change failed. How should we separate management enablement from validation?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ONB-004",
+        "ONB-008",
+        "ROT-001",
+        "ROT-006"
+      ],
+      "relevance_reason": "ONB-004 compares Linux onboarding/management/initial validation; ONB-008 separates these states; ROT-001 addresses the first post-onboarding failure and validation evidence; ROT-006 distinguishes verification from change.",
+      "benchmark_id": "R03",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ONB-004",
+          "ONB-001",
+          "ONB-008",
+          "ROT-007",
+          "ROT-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.75,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ONB-008",
+          "ONB-004",
+          "ROT-001",
+          "ROT-007",
+          "ROT-006"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "A Linux credential update was attempted, then verification reported a mismatch. Can we know which password is valid?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ROT-006",
+        "ROT-007"
+      ],
+      "relevance_reason": "ROT-007 directly addresses Linux post-change mismatch and unknown credential validity; ROT-006 explains separate change/verification/recovery stages. Initial-onboarding verification is a different stage.",
+      "benchmark_id": "R04",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ROT-007",
+          "ONB-004",
+          "ROT-002",
+          "ROT-001",
+          "ROT-004"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.5,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ROT-007",
+          "ROT-006",
+          "ONB-001",
+          "ONB-004",
+          "ONB-005"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Linux password rotation authentication failed: account locked or disabled, or missing password-change permissions.",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ROT-001",
+        "ROT-002"
+      ],
+      "relevance_reason": "ROT-002 directly covers Linux authentication, restrictions and change permissions; ROT-001 explicitly includes account state and permissions in Linux rotation triage. Windows-specific restriction guidance is excluded.",
+      "benchmark_id": "R05",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ROT-002",
+          "ONB-004",
+          "ROT-001",
+          "ROT-004",
+          "ONB-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ROT-002",
+          "ROT-008",
+          "ROT-001",
+          "ROT-004",
+          "ONB-008"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Windows password change denied: distinguish minimum age policy rejection from insufficient account rights.",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ROT-003",
+        "ROT-008"
+      ],
+      "relevance_reason": "ROT-008 directly contrasts Windows policy and authorization failures; ROT-003 supplies general minimum-age and target-policy checks. Onboarding approval alone does not diagnose this attempted change.",
+      "benchmark_id": "R06",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ROT-008",
+          "ONB-007",
+          "ROT-003",
+          "WEB-005",
+          "ONB-008"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ROT-008",
+          "WEB-005",
+          "ROT-002",
+          "ROT-003",
+          "ONB-008"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Linux password rotation times out. Which DNS, firewall, port and target-availability evidence should we examine?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "ONB-002",
+        "ROT-004"
+      ],
+      "relevance_reason": "ROT-004 directly covers Linux rotation timeouts and network evidence; ONB-002 provides the same general management-to-target connectivity checks despite its onboarding context. Generic triage that only mentions connectivity is not enough for this detailed request.",
+      "benchmark_id": "R07",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "ROT-004",
+          "ONB-004",
+          "ROT-001",
+          "ROT-002",
+          "ONB-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.5,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "ROT-004",
+          "ONB-002",
+          "ONB-004",
+          "ROT-001",
+          "WEB-008"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "How should we check the approved sequence when a custom web connector reaches a second login page before showing the password field?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "WEB-002",
+        "WEB-006"
+      ],
+      "relevance_reason": "WEB-006 covers conditional username/password screens and supported sequence; WEB-002 addresses which page was reached and documented redirects/session flow. Timing or selector changes alone do not explain the requested sequence.",
+      "benchmark_id": "R08",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "WEB-001",
+          "WEB-002",
+          "WEB-008",
+          "WEB-006",
+          "WEB-007"
+        ],
+        "scores": {
+          "hit_at_1": 0,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 0.5
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "WEB-006",
+          "WEB-002",
+          "WEB-008",
+          "WEB-001",
+          "WEB-007"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "The custom web connector sees an untrusted HTTPS certificate before login. Should we treat this as a bad password?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "WEB-008"
+      ],
+      "relevance_reason": "WEB-008 explicitly separates certificate trust, page availability and credential assumptions. Other articles do not address HTTPS trust before login.",
+      "benchmark_id": "R09",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "WEB-008",
+          "WEB-005",
+          "WEB-001",
+          "WEB-007",
+          "WEB-006"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "WEB-008",
+          "WEB-006",
+          "WEB-007",
+          "WEB-002",
+          "WEB-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "The connector submitted a form and moved to another page, but success was never confirmed. What evidence distinguishes login from password-change completion?",
+      "collection": "documentation",
+      "relevant_ids": [
+        "WEB-005",
+        "WEB-006",
+        "WEB-007"
+      ],
+      "relevance_reason": "Ambiguous login versus password-change form: WEB-005 addresses password-change confirmation, WEB-007 authenticated-session proof and WEB-006 conditional second screens that must not be mistaken for completed login.",
+      "benchmark_id": "R10",
+      "k": 5,
+      "tfidf": {
+        "ranked_ids": [
+          "WEB-005",
+          "WEB-007",
+          "WEB-001",
+          "WEB-008",
+          "ROT-005"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 0.6666666666666666,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "WEB-005",
+          "WEB-006",
+          "WEB-007",
+          "WEB-008",
+          "ROT-002"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Have we seen Linux onboarding stop because account-owner approval was missing?",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-004"
+      ],
+      "relevance_reason": "TKT-004 records Linux onboarding blocked by missing owner approval. The Windows preparatory authorization case is not the requested Linux incident.",
+      "benchmark_id": "R11",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-015",
+          "TKT-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-004",
+          "TKT-015",
+          "TKT-001",
+          "TKT-002"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Find earlier Windows cases involving duplicate inventory entries or account-management approval gaps.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-005",
+        "TKT-015"
+      ],
+      "relevance_reason": "TKT-005 records duplicate entries for a Windows asset; TKT-015 records missing Windows account-management authorization before rotation ran. Both requested facets are relevant despite different ticket categories.",
+      "benchmark_id": "R12",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-005",
+          "TKT-015",
+          "TKT-004",
+          "TKT-014"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-015",
+          "TKT-005",
+          "TKT-004",
+          "TKT-014"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Find previous Linux password rotation failures soon after onboarding where the selected local-account configuration did not match the approved record.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-001"
+      ],
+      "relevance_reason": "TKT-001 records the specific historical post-onboarding configuration mismatch; other rotation tickets document different findings. This comparison does not diagnose a new incident.",
+      "benchmark_id": "R13",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-004",
+          "TKT-005",
+          "TKT-001",
+          "TKT-013"
+        ],
+        "scores": {
+          "hit_at_1": 0,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 0.3333333333333333
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-001",
+          "TKT-013",
+          "TKT-002",
+          "TKT-004"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "A Linux password update was attempted but later verification disagreed. Are there historical cases with uncertain credential state?",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-013"
+      ],
+      "relevance_reason": "TKT-013 records attempted change followed by verification mismatch and unconfirmed credential validity. Other Linux failures do not record that operation-stage sequence.",
+      "benchmark_id": "R14",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-013",
+          "TKT-003",
+          "TKT-014",
+          "TKT-002"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-013",
+          "TKT-003",
+          "TKT-014",
+          "TKT-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Show previous Linux rotation incidents where authentication failed because the account was restricted.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-002"
+      ],
+      "relevance_reason": "TKT-002 records Linux authentication failure and an account restriction at the historical timestamp. A timeout or a Windows approval gap is not the same finding.",
+      "benchmark_id": "R15",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-002",
+          "TKT-015",
+          "TKT-003",
+          "TKT-001"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-015",
+          "TKT-002",
+          "TKT-001",
+          "TKT-004"
+        ],
+        "scores": {
+          "hit_at_1": 0,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 0.5
+        }
+      }
+    },
+    {
+      "query": "Find past Windows password changes rejected by minimum age policy, including how schedules were reviewed.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-009",
+        "TKT-014"
+      ],
+      "relevance_reason": "Both TKT-009 and TKT-014 record minimum-age rejection on Windows-related assets with approved schedule/policy review. TKT-015 concerns authorization without an executed change, not a policy rejection.",
+      "benchmark_id": "R16",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-014",
+          "TKT-009",
+          "TKT-015",
+          "TKT-013"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-014",
+          "TKT-009",
+          "TKT-015",
+          "TKT-002"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Find prior Linux password rotation timeouts linked to the target being unavailable.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-003"
+      ],
+      "relevance_reason": "TKT-003 records historical target unavailability during a Linux rotation timeout. Authentication and verification mismatch tickets are different findings.",
+      "benchmark_id": "R17",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-003",
+          "TKT-009",
+          "TKT-002",
+          "TKT-013"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-003",
+          "TKT-002",
+          "TKT-009",
+          "TKT-013"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "A custom web connector cannot locate a login element. Find earlier cases involving changed labels or a missing field on a second screen.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-006",
+        "TKT-016"
+      ],
+      "relevance_reason": "TKT-006 records changed element labels; TKT-016 records a missing password field on the conditional second page. Redirect and certificate cases do not explicitly record the requested field findings.",
+      "benchmark_id": "R18",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-016",
+          "TKT-006",
+          "TKT-015",
+          "TKT-017"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-016",
+          "TKT-006",
+          "TKT-017",
+          "TKT-007"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Find historical custom web connector cases involving an unexpected page, a second login screen or an unsupported interactive challenge.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-007",
+        "TKT-008",
+        "TKT-016"
+      ],
+      "relevance_reason": "A deliberately broad flow query: TKT-007 covers an expired-session redirect, TKT-008 an unsupported challenge and TKT-016 a conditional second screen. No single case covers all three alternatives.",
+      "benchmark_id": "R19",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-008",
+          "TKT-016",
+          "TKT-007",
+          "TKT-006"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-016",
+          "TKT-008",
+          "TKT-007",
+          "TKT-006"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    },
+    {
+      "query": "Our web connector did not complete login. Find prior incidents involving certificate trust or missing proof of an authenticated session.",
+      "collection": "tickets",
+      "relevant_ids": [
+        "TKT-017",
+        "TKT-018"
+      ],
+      "relevance_reason": "Ambiguous failure stage narrowed to two evidence types: TKT-017 records untrusted HTTPS; TKT-018 records missing post-login success proof. A field-selector incident is not one of these specified findings.",
+      "benchmark_id": "R20",
+      "k": 4,
+      "tfidf": {
+        "ranked_ids": [
+          "TKT-018",
+          "TKT-017",
+          "TKT-006",
+          "TKT-007"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      },
+      "keyword": {
+        "ranked_ids": [
+          "TKT-018",
+          "TKT-017",
+          "TKT-006",
+          "TKT-007"
+        ],
+        "scores": {
+          "hit_at_1": 1,
+          "hit_at_k": 1,
+          "recall_at_k": 1.0,
+          "mrr_at_k": 1.0
+        }
+      }
+    }
+  ]
+}

@@ -98,7 +98,7 @@ same-scenario stale-edit checks. Reconstructed records are not captured historic
 tool-response bodies. Correct execution, heuristic checks and human/judge agreement
 are distinct from proven answer correctness.
 
-Latest full offline result: 202 passed, five paid tests skipped, 19 subtests passed;
+Latest full offline result: 219 passed, five paid tests skipped, 19 subtests passed;
 one existing event-loop deprecation warning. Scripted-model and UI tests exercise
 contracts, not probabilistic model reasoning. Detailed reports remain in evals/.
 
@@ -126,3 +126,24 @@ integrations or additional agents without a separately scoped request.
 Source-of-truth rule: maintain this handoff and README when implementation changes.
 Use actual saved reports for results and preserve the historical record. Current
 limitations and reproducible commands are documented in README.md.
+
+## Step 2 — Offline retrieval benchmark
+
+Exactly 20 handcrafted draft relevance queries (10 documentation/10 tickets) compare
+unchanged production TF-IDF with deterministic unique keyword overlap on identical
+fields and K=5/4. The coding assistant authored qrels from curated records before
+ranking; they are not independently human-adjudicated ground truth and were not
+changed after scoring. Both methods reach 100% Hit@K. Overall keyword versus TF-IDF:
+Hit@1 95%/90%, Recall@K 95%/87.08%, MRR@K 0.9750/0.9417. TF-IDF wins the restricted
+Linux authentication-ticket query, while keyword generally does better on this
+small set. Missing complementary sources on some documentation queries are hidden
+by first-hit success. No superiority/generalization claim is justified.
+
+The current production implementation is retained unchanged as an interim
+engineering decision, not a benchmark win. Independent qrel review and broader
+queries should inform any future retrieval change. See docs/retrieval_benchmark.md
+and evals/retrieval_benchmark_results.json for collection-level scores, per-query
+rankings, reasons and fingerprints. Seventeen focused tests and the full suite
+(219 passed, 5 skipped, 19 subtests passed) succeeded. No prior source data,
+evaluation artifacts, production code or existing assertions were modified;
+no API, agent or LLM judge calls were made. Stop for ChatGPT review before Step 3.

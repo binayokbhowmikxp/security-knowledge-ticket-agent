@@ -6,7 +6,7 @@ capstone. It combines local knowledge, synthetic inventory and historical ticket
 to support engineering investigations, with source IDs and observable tool use.
 
 **Current evidence:** 50 real-model investigations, 20 human-reviewed responses,
-and two structured judge iterations. The latest offline suite passed **202 tests**
+and two structured judge iterations. The latest offline suite passed **219 tests**
 with five paid tests skipped. Execution success does not establish answer correctness.
 
 ## Problem and business value
@@ -141,7 +141,7 @@ uv run python evals/run_judge.py --version v1 --dry-run
 uv run python evals/run_judge.py --version v2 --dry-run
 ```
 
-Latest verified full suite: **202 passed, 5 skipped, 19 subtests passed**, with one
+Latest verified full suite: **219 passed, 5 skipped, 19 subtests passed**, with one
 existing Python event-loop deprecation warning. Live tests require an explicit
 `--live` flag and are skipped by default. Offline scripted-model and UI tests
 exercise real framework/tool contracts, storage and failure handling; they do not
@@ -212,6 +212,29 @@ proof of judge correctness. [V1's report](evals/judge_v1_report.md),
 preserve all disagreements, reasoning, tokens and cost estimates. V1/V2 used
 33,535 / 44,359 tokens, estimated $0.00618405 / $0.00773745 USD respectively.
 
+### Offline retrieval comparison
+
+A separate [20-query draft benchmark](docs/retrieval_benchmark.md) compares the
+unchanged production TF-IDF functions with unique keyword overlap on the same
+fields and collections (10 article queries at K=5, 10 ticket queries at K=4).
+Both reach 100% Hit@K. Keyword overlap scores higher overall: Hit@1 **95% vs 90%**,
+Recall@K **95% vs 87.08%**, MRR@K **0.9750 vs 0.9417**. TF-IDF does better on the
+restricted-account ticket query; both methods miss complementary onboarding
+sources on some queries. The [questions](evals/retrieval_questions.csv) and
+[rankings](evals/retrieval_benchmark_results.json) preserve draft relevance reasons
+and reproducibility fingerprints.
+
+These are source-informed, handcrafted coding-assistant judgments, not independent
+ground truth. They were fixed before running the two methods and not adjusted to
+improve scores. This small result favors the keyword baseline, not a claim of
+TF-IDF superiority. Production retrieval remains unchanged pending independent
+review and broader evaluation. No agent, judge or OpenAI calls were made.
+
+```sh
+uv run python evals/retrieval_benchmark.py
+uv run pytest evals/test_retrieval_benchmark.py -q
+```
+
 ## Monitoring with Logfire
 
 Add a write token as `LOGFIRE_TOKEN` in local `.env` to enable the existing
@@ -240,8 +263,8 @@ Monitoring does not validate answer quality.
   Tools can be omitted or irrelevant records retrieved; historical outcomes do not
   establish current causes.
 - **Lexical retrieval:** fixed result limits and cross-platform word overlap can
-  displace useful evidence. No dedicated retrieval benchmark is complete; future
-  evaluation should precede any retrieval changes.
+  displace useful evidence. A small draft benchmark is complete; independent
+  relevance review and broader evaluation should precede retrieval changes.
 - **Limited evaluation:** only 20 human labels, 30 unlabeled answers, six remaining
   judge disagreements and no held-out judge validation. Broader human review and
   an independent holdout set are future work, not completed results.
@@ -260,7 +283,8 @@ Monitoring does not validate answer quality.
 | [Development history](docs/development_history.md) | Preserved prior README/context, migration explanations and historical commands |
 | [Source provenance](docs/pam_expansion_sources.md) | Public conceptual references and synthetic-data boundaries |
 | [Data integration review](docs/pam_expansion_review_results.md) | Ranking regression, curation and original-record integrity |
-| [Retrieval comparison artifact](docs/pam_expansion_retrieval_resolution.json) | Saved original/expanded/curated rankings, not a new benchmark |
+| [Retrieval comparison artifact](docs/pam_expansion_retrieval_resolution.json) | Saved original/expanded/curated rankings |
+| [Draft retrieval benchmark](docs/retrieval_benchmark.md) | TF-IDF versus keyword overlap, methodology, scores and limitations |
 | [Batch report](evals/batch_report.md) | Real-agent collection evidence and limitations |
 | [Human evaluation console](evals/label_evals.py) / [labels](evals/labels.csv) | Manual review and notes |
 | [V1 prompt](evals/judge_prompts/v1.txt) / [predictions](evals/judge_v1_results.csv) | Frozen baseline judge |
