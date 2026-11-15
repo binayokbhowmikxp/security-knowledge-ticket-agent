@@ -1,2 +1,8 @@
 .batch.lock
 monitoring_export.json
+labels.lock
+.labels-*.tmp
+.judge_v1.lock
+judge_v1_results.tmp
+.judge_v2.lock
+judge_v2_results.tmp

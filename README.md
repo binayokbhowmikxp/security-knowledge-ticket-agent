@@ -669,4 +669,190 @@ investigations. Existing instrumentation excludes question/answer contents, raw
 provider history, credentials and exception payloads. The retained rolling export
 buffer showed HTTP 200 ingestion acknowledgements; dashboard visibility was not
 independently verified. Temporary monitoring exports, locks, caches, ZIP files and
-`.env` are excluded from version control. Question 2 has not started.
+`.env` are excluded from version control. This completes the Question 1 collection milestone.
+
+## Capstone Evaluation — Question 2: Human evaluation (completed)
+
+The separate Streamlit **PAM Agent Evaluation Console**
+([labeling app](evals/label_evals.py)) supports review of all 50 Question 1 answers.
+The human reviewer completed **20 responses: 10 Good and 10 Bad**, persisted in
+[evals/labels.csv](evals/labels.csv). The remaining 30 responses are unlabeled.
+
+| Primary failure category among the 10 Bad responses | Count |
+|---|---:|
+| Wrong evidence or citation | 5 |
+| Hallucination | 3 |
+| Incorrect tool use | 1 |
+| Incomplete response | 1 |
+
+Wrong evidence or citation was the most common reviewed failure. Labels and notes
+were selected by the human reviewer, not generated from automated checks. Launch
+the console from the repository root:
+
+```sh
+uv run streamlit run evals/label_evals.py
+```
+
+It reads only terminal `result` events from `evals/results.jsonl`, preserving
+S001–S050. No agent, API key, monitoring connection or LLM judge is used by this
+app. The original full answers, questions, types, categories, executed tools,
+safe traces and informational findings are displayed unchanged. Citation findings
+are context for a human decision and never assign a label.
+
+Retrieved evidence records are reconstructed from saved evidence IDs against the
+fingerprint-matched 25/12/15 synthetic datasets, and explicitly labeled as
+reconstructed rather than exact captured tool responses. IDs merely mentioned
+or cited without retrieval are shown separately and never promoted to evidence.
+If the local datasets no longer match the batch fingerprints, review stops rather
+than displaying changed records as frozen evidence.
+
+Select **Good** or **Bad**, add reviewer notes, then click **Confirm label**.
+Bad requires one primary failure category: hallucination,
+wrong_evidence_or_citation, wrong_scope, incomplete, incorrect_tool_use,
+unsafe_recommendation or other. No decision is preselected for an unlabeled row.
+The app creates `evals/labels.csv` only on the first human-confirmed save, with
+columns `scenario_id,label,primary_failure_category,reviewer_notes,updated_at`.
+The timestamp records confirmation time, not an independent quality review.
+
+Previous, Next, Next Unlabeled and direct ID navigation are available; navigation
+does not save drafts. Progress shows labeled/50, Good and Bad counts, with Bad
+labels grouped by primary failure category. Labels survive browser reloads and
+application restarts. Updating a label replaces that scenario's row without
+creating duplicates. Each save reloads existing rows under a file lock and uses
+atomic file replacement; a stale edit of the same scenario is rejected until the
+reviewer reloads its saved label. Invalid or duplicate existing label files fail
+closed; there is no reset or delete-all control. Keep a backup of human labels
+as with any local review artifact. Lock and temporary-write files are ignored.
+
+The navigation/display/confirmation pattern follows the
+[course manual labeling reference](https://github.com/alexeygrigorev/ai-engineering-buildcamp-code/blob/main/documentation-agent/evals/manual/app.py).
+The PAM tool adds frozen evidence reconstruction and failure categories without
+importing the reference's judge or resetting saved labels.
+
+Run focused offline checks:
+
+```sh
+.venv/bin/python -m pytest evals/test_label_evals.py -q
+```
+
+No human labels were generated during implementation. Test labels exist only in
+pytest temporary directories. Question 1 results and scenarios remain unchanged.
+
+## Capstone Evaluation — Question 3: LLM judge validation (completed)
+
+The structured PydanticAI judge uses `gpt-4o-mini` with output fields `reasoning`
+followed by `label` (`good` or `bad`). Both versions evaluated the same 20 manually
+reviewed responses using unchanged saved answers and evidence.
+
+### Judge V1
+
+V1 evaluates saved responses with a separate PydanticAI `gpt-4o-mini` structured
+judge ([criteria](evals/judge_prompts/v1.txt), [implementation](evals/judge.py)).
+Human labels are joined by scenario_id; their decisions, notes and failure
+categories are never supplied to the judge. Saved successful tool traces identify
+retrieved evidence; reference inventory facts are separately marked NOT RETRIEVED.
+Citation diagnostics are explicitly nonauthoritative. The original agent is not run.
+
+```sh
+.venv/bin/python evals/run_judge.py --dry-run
+.venv/bin/python -m pytest evals/test_judge_v1.py -q
+# V1 is frozen: this command verifies inputs without model calls or artifact writes.
+.venv/bin/python evals/run_judge.py --version v1 --dry-run
+```
+
+The completed V1 batch used exactly 20 paid evaluations with no execution errors.
+The runner verifies the authorized 20 labels (10 Good/10 Bad and approved category
+counts) before live calls, disables transport/output/tool retries and permits one
+model request per evaluation. Durable started/result events prevent silent repeats;
+changed prompt/data/code/label fingerprints or malformed journals stop resume.
+Preserve the saved journal; running on the completed batch makes no new evaluations.
+
+[CSV results](evals/judge_v1_results.csv) retain predictions, reasoning, human labels,
+notes, status, usage and estimated cost. [The report](evals/judge_v1_report.md) lists
+every disagreement. The manifest and event journal in evals retain reproducibility
+metadata. API errors never become Good/Bad predictions and are excluded from metrics.
+
+With Bad positive: TP=10, FP=9, FN=0, TN=1; accuracy 55%, precision 52.63%, recall
+100%. Nine disagreements were all human Good / judge Bad. Usage was 33,535 tokens
+and estimated USD 0.00618405 at existing monitoring rates. This measures agreement
+on a small selected subset, not judge correctness or original-agent answer quality.
+The V1 prompt was not refined after results. Its disagreements were reviewed
+before preparing the targeted V2 prompt below; the V1 artifacts remain frozen.
+
+### Judge V2 — targeted response-type iteration
+
+[The targeted V2 prompt](evals/judge_prompts/v2.txt) first assesses response type:
+evidence-based investigation, clarification/missing information, security refusal,
+general procedural guidance, or out-of-scope response. It then applies evidence
+and citation requirements to the claims actually made. Honest missing-asset replies,
+pure clarifications and security refusals can be Good without unnecessary retrieval
+or citations; unsupported facts or substantive technical procedures within them
+still require proper evidence and citations. Diagnostics never automatically fail
+an answer. Hallucination, unsafe guidance, injection and unsupported-diagnosis
+checks are retained. There are no scenario-specific passing rules.
+
+```sh
+.venv/bin/python evals/run_judge.py --version v2 --dry-run
+.venv/bin/python -m pytest evals/test_judge_v1.py evals/test_judge_v2.py -q
+```
+
+Dry-run verifies exactly the same 20 labeled examples and the same model-input
+SHA-256 values used by V1. Human labels, notes, categories and V1 predictions are
+excluded from model input. The structured output stays `reasoning`, then `label`.
+V1's historical manifest still records the original runner/code hashes; the
+versioned runner verifies unchanged V1 data/prompt and per-input hashes without
+rewriting that manifest. V1 commands are now verification-only and cannot rerun
+or export over the frozen batch.
+
+The user subsequently authorized exactly 20 real evaluations. V2 completed all 20
+once with zero execution errors and no automatic retries. Dry-run now reports zero
+unstarted cases. Separate [V2 predictions](evals/judge_v2_results.csv),
+[comparison report](evals/judge_v2_report.md), manifest, event journal and
+[comparison JSON](evals/judge_v2_comparison.json) preserve the outcomes.
+
+V1 → V2: accuracy 55% → 70%, Bad precision 52.63% → 62.5%, recall 100% → 100%.
+V2 TP=10, FP=6, FN=0, TN=4. S028, S044 and S048 were corrected, supported by
+inspection of the saved answers/traces. No previously correct prediction regressed.
+Six disagreements remain: S001, S005, S023, S029, S035 and S049. The report selects
+S028 as a course-submission candidate and preserves the remaining policy questions.
+
+V2 used 44,359 tokens at estimated USD 0.00773745. Relevant offline tests: 17 passed.
+The V2 prompt, V1 artifacts, human labels, original agent/results and datasets are
+unchanged. These are same-subset agreement metrics after targeted review, not
+held-out validation or proof of correctness. No further iteration was started.
+Questions 2 and 3 have been reviewed and approved; no further judge iteration is included.
+
+### Final judge comparison and corrected example
+
+Bad is the positive class. Both versions completed 20 real evaluations without
+execution errors or automatic retries.
+
+| Metric | V1 | V2 |
+|---|---:|---:|
+| Accuracy | 55% | 70% |
+| Precision (Bad) | 52.63% | 62.5% |
+| Recall (Bad) | 100% | 100% |
+| TP / FP / FN / TN | 10 / 9 / 0 / 1 | 10 / 6 / 0 / 4 |
+
+False positives decreased from **9 to 6**. Corrected disagreements were **S028,
+S044 and S048**, with **no prediction regressions** relative to the unchanged human
+labels. V2 explicitly assesses whether the response is an investigation,
+clarification, security refusal, procedural answer or out-of-scope response before
+applying evidence/citation requirements. Unsupported factual claims and technical
+procedures retain strict evidence requirements; safe refusals and basic requests
+for missing information do not automatically require irrelevant retrieval.
+
+**S028 illustrates a genuine correction:** the LNX-999 lookup returned
+`asset_not_found` with no evidence IDs. The saved answer honestly stated that no
+synthetic inventory record existed and requested identifying information. Human:
+Good; V1: Bad (unnecessary citation demand); V2: Good (recognition that a missing
+record cannot supply a citation). The [V2 report](evals/judge_v2_report.md) preserves
+the original question, answer, trace and both judge reasonings.
+
+**V2 metrics are in-sample.** These same 20 human-labeled examples informed the
+prompt improvement, so the gains do not establish held-out accuracy or judge
+correctness. Six disagreements remain, including legitimate source-relevance and
+citation-placement questions. All judgments require interpretation against the
+saved evidence; human labels, frozen prompts and predictions were not changed to
+force agreement. Question 1 reproduction instructions and original results remain
+available above and unchanged.

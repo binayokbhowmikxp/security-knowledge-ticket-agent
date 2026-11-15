@@ -1,0 +1,24 @@
+{
+  "version": "v1",
+  "model": "gpt-4o-mini",
+  "fingerprints": {
+    "evals/judge.py": "245664036fd856b6e9fbfd135d4d5906b3ca0ef9f80c329c803d5d7c218db1b6",
+    "evals/run_judge.py": "722d2c29d988efa91d791fc1f9a52b772fdff73f7264c14f853e5b587a518ac9",
+    "evals/judge_prompts/v1.txt": "b433b41892000090c2dcd9067eea6d87a4afaeed764dc656f8cd240117e8f7ef",
+    "evals/label_evals.py": "7a3a7e2c8025e3de66cdc3bd4fba0716152235ee164eb041ddb450764043d0c6",
+    "evals/results.jsonl": "0e3ba8819e3054dbbfd84e8f09888ea6043968298952043cfc64a4fc102e8d0c",
+    "evals/labels.csv": "b3fc5cbfd5c4425a0b3035ceb94c39b8353b9ed9db295e76ff75a2c10e80a963",
+    "uv.lock": "a0118e582e0f3a586801c4d905cf42ca50c561505c9e280453aa4f686d5600a8",
+    "data/pam_knowledge.json": "2e5151f81a4e3a533ec378200edd44a3a356f82295b3a60c0cba81732af3a51c",
+    "data/pam_assets.json": "b3a01d4bb7ee13349de58f57b90ee3e2763d8021902d99dc7a3d9bc2de5690f7",
+    "data/pam_tickets.json": "bb20f8e0c9cf7969dae219dd56357b73da828cc7b07de7a33d349be0e2fa7b9a"
+  },
+  "run_fingerprint": "e76ee8e67c3288880c01f9d9ff4910682b1ef5bc6a89f239b21b71b0c7242b12",
+  "sdk_retries": 0,
+  "request_limit": 1,
+  "versions": {
+    "pydantic-ai-slim": "2.64.0",
+    "openai": "3.42.0",
+    "pydantic": "2.13.5"
+  }
+}

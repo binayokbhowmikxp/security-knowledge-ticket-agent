@@ -1,0 +1,52 @@
+{
+  "v1_metrics": {
+    "evaluated": 20,
+    "execution_errors": 0,
+    "TP": 10,
+    "FP": 9,
+    "FN": 0,
+    "TN": 1,
+    "accuracy": 0.55,
+    "precision_bad": 0.5263157894736842,
+    "recall_bad": 1.0,
+    "disagreements": 9
+  },
+  "v2_metrics": {
+    "evaluated": 20,
+    "execution_errors": 0,
+    "TP": 10,
+    "FP": 6,
+    "FN": 0,
+    "TN": 4,
+    "accuracy": 0.7,
+    "precision_bad": 0.625,
+    "recall_bad": 1.0,
+    "disagreements": 6
+  },
+  "corrected_relative_to_human": [
+    "S028",
+    "S044",
+    "S048"
+  ],
+  "regressed_relative_to_human": [],
+  "unchanged_correctness": [
+    "S001",
+    "S002",
+    "S003",
+    "S004",
+    "S005",
+    "S011",
+    "S015",
+    "S023",
+    "S024",
+    "S025",
+    "S029",
+    "S030",
+    "S033",
+    "S034",
+    "S035",
+    "S037",
+    "S049"
+  ],
+  "unpaired_or_failed": []
+}
