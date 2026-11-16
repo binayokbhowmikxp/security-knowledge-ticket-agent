@@ -132,6 +132,49 @@ human confirmation; Bad requires a primary failure category. Notes and labels
 persist in [labels.csv](evals/labels.csv) using locked, atomic updates. Reviewing
 is offline; confirming a changed label intentionally updates this human-review file.
 
+## Demo Screenshots
+
+These genuine, user-supplied captures show a **separate real LNX-001 Streamlit
+investigation** and its corresponding Logfire trace. They are not the historical
+S009/WIN-003 evaluation result. The pictured `gpt-4o-mini` run made **2 model
+requests and 2 tool calls** (`get_asset_details`, `search_past_tickets`);
+**documentation search was not called**. No new run was made to prepare these docs.
+
+**Application and question.** The chat displays synthetic account findings and
+keeps its unverified-output notice visible.
+
+![Real LNX-001 question and beginning of the generated Streamlit answer](docs/screenshots/01_streamlit_app_question.png)
+
+**Executed tools and transparent warnings.** Asset and historical-ticket retrieval
+completed; informational citation checks reported issues rather than rejecting
+or correcting the answer (`validate_output=False`).
+
+![Two completed retrieval tools and the informational citation warning](docs/screenshots/04_agent_activity_citation_warning.png)
+
+**Evidence and usage.** Retrieved IDs were LNX-001, TKT-001, TKT-003, TKT-004 and
+TKT-015 ([full evidence-ID and diagnostic view](docs/screenshots/05_evidence_ids_citation_diagnostics.png)).
+The run reported **1,860 input / 454 output / 2,314 total tokens**, at an estimated
+**$0.00055140 USD**; the panel also supplies its Logfire trace ID.
+
+![Per-investigation model requests, tool calls, tokens, estimated cost and trace ID](docs/screenshots/06_usage_cost_trace_id.png)
+
+**Corresponding Logfire view.** The supplied crop shows the investigation,
+model/tool operation counts and matching usage attributes. Personal account and
+organization information was removed in the supplied crop; no further image edits
+were made. This is a captured trace view, not a claim of perpetual dashboard access.
+
+![Supplied cropped Logfire trace with two model operations and two tool operations](docs/screenshots/07_logfire_trace_redacted.png)
+
+Supplementary answer views: [asset findings and possible causes](docs/screenshots/02_asset_findings_possible_causes.png)
+and [historical tickets and recommendations](docs/screenshots/03_historical_tickets_recommendations.png).
+The response is **not independently verified as technically correct**. Historical
+outcomes do not establish this incident's cause, and future tool choices are not
+guaranteed. Warnings and answer defects are preserved, not edited away.
+See the [walkthrough](docs/demo_walkthrough.md) and
+[evidence checklist](docs/demo_evidence_checklist.md) for provenance, limitations
+and the distinction from S009. These captures do not alter the frozen 50-case batch
+or its evaluation metrics.
+
 ## Testing and verification
 
 ```sh
@@ -242,7 +285,9 @@ Add a write token as `LOGFIRE_TOKEN` in local `.env` to enable the existing
 Without it, export is disabled. In Logfire, filter service `pam-agent` and use the
 saved trace ID to follow the investigation root span and nested agent/model/tool
 activity. The collected 50-case batch recorded **50 trace IDs**; retained ingestion
-acknowledgements were HTTP 200. Dashboard visibility was not independently verified.
+acknowledgements were HTTP 200. Dashboard visibility for that historical batch
+was not independently verified. The separate LNX-001 demo now has a supplied
+matching dashboard capture, shown above; it is not a screenshot of S009.
 The manual console uses saved files; V1/V2 judge runs did not enable Logfire export.
 
 Instrumentation excludes question/answer content, raw provider messages and
@@ -271,15 +316,17 @@ Monitoring does not validate answer quality.
 - **Local prototype:** no authentication, persistent chat store, production PAM
   integration, autonomous remediation or completed cloud deployment. No measured
   customer benefit or production-readiness claim.
-- A reviewed UI/Logfire screenshot and final presentation walkthrough are still
-  documentation gaps. Notebooks remain teaching artifacts with their own legacy
-  orchestration; their paid cells are not needed to run the app.
+- Reviewed UI/Logfire captures and a demo walkthrough are available above; a
+  recorded presentation and fully expanded trace-tree capture are not included.
+  Notebooks remain teaching artifacts with their own legacy orchestration; their
+  paid cells are not needed to run the app.
 
 ## Documentation and evidence
 
 | Resource | Purpose |
 |---|---|
 | [Project context](PROJECT_CONTEXT.md) | Current scope, engineering constraints and decisions |
+| [Demo walkthrough](docs/demo_walkthrough.md) / [evidence checklist](docs/demo_evidence_checklist.md) | Reviewed screenshots, separate run identities and presentation limits |
 | [Development history](docs/development_history.md) | Preserved prior README/context, migration explanations and historical commands |
 | [Source provenance](docs/pam_expansion_sources.md) | Public conceptual references and synthetic-data boundaries |
 | [Data integration review](docs/pam_expansion_review_results.md) | Ranking regression, curation and original-record integrity |

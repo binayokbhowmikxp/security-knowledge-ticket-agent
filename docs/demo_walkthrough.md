@@ -1,14 +1,19 @@
 # Demo walkthrough — PAM investigation with visible evidence
 
-**Step 3A: plan only.** This walkthrough uses existing code and saved results from
-commit `265c4f942ef45b0fb03844dfcc47404a279de684` on `feature/streamlit-ui`.
-No new model invocation, Logfire trace, screenshot, recording or live execution
-was created for this plan. See [the evidence checklist](demo_evidence_checklist.md)
-for manual captures still needed. Do not start capture/execution as part of Step 3A.
+**Step 3B: supplied captures reviewed and organized.** The seven genuine PNGs
+in [the screenshot checklist](demo_evidence_checklist.md) document a separate
+real **LNX-001 Streamlit investigation**, not the historical S009/WIN-003 result.
+They were supplied after Step 3A (commit `2f1d342947bcf87a41662289b09f6f52776e9e0d`).
+No API call, new trace or screenshot capture was performed while organizing them;
+images were copied unchanged from existing temp/ files. Review date: 2026-11-16.
+The captured execution is already completed—do not describe static images as a
+new live run happening during the presentation.
 
 ## Recommended format: 4 minutes 30 seconds
 
-Use a current product overview plus a **clearly identified historical execution**.
+Use a current product overview plus the **completed LNX-001 run shown in supplied
+Streamlit/Logfire screenshots**. Keep S009 as an optional, separately identified
+historical comparison, not the source of these images.
 This works for capstone peers, a portfolio walkthrough or an enterprise security
 architect. It is a local synthetic-data prototype demonstration, not a production
 customer deployment or a promise of verified time savings.
@@ -16,9 +21,9 @@ customer deployment or a promise of verified time savings.
 | Time | Show | Suggested narration |
 |---|---|---|
 | 0:00–0:25 | Project title and the README problem/scope | “A PAM engineer often needs account configuration, troubleshooting knowledge and earlier incidents together. This assistant demonstrates gathering that context while making evidence gaps visible. All enterprise records here are synthetic; it cannot access or change your PAM environment.” |
-| 0:25–0:55 | README architecture; optionally the empty chat interface | “One PydanticAI agent uses gpt-4o-mini and three read-only local tools. Documentation supplies procedural context, inventory describes the current synthetic asset, and historical tickets provide comparisons. Each question is independent; the model chooses tools rather than following a fixed three-tool script.” |
-| 0:55–2:10 | Saved S009 in the PAM Agent Evaluation Console, then its retrieved-evidence expanders and citation findings | “This is a previously collected real-model answer, not a new live run. The Windows rotation question triggered all three tools. Let’s distinguish current facts, relevant guidance and historical outcomes—and inspect an actual citation error rather than hiding it.” |
-| 2:10–2:45 | S009 saved usage/trace metadata; an existing Logfire trace if manually verified beforehand | “The saved run reports four model requests and three tool executions. A trace ID links the investigation to observability. Logfire is configured to show model/tool activity and usage without recording the question, answer or raw credentials in telemetry. Dashboard availability must be verified; a stored ID alone is not a screenshot of its spans.” |
+| 0:25–0:55 | README architecture and screenshot 01 | “One PydanticAI agent can choose three read-only tools: documentation, inventory and historical tickets. Each question is independent. The pictured run chose inventory and tickets only; documentation was not searched.” |
+| 0:55–2:10 | Screenshots 02–05: LNX-001 findings, historical outcomes, tools and citation diagnostics | “These are supplied screenshots of a completed real Streamlit run, not a new request now. Inventory and historical retrieval are observable, but the response still has citation issues. We preserve that warning. Past ticket outcomes cannot establish the current root cause, and no documentation tool was called to support technical procedures.” |
+| 2:10–2:45 | Screenshots 06–07: captured LNX-001 usage and matching Logfire view | “This run reports two model requests, two tool executions and 2,314 tokens, estimated at $0.00055140. The UI trace ID and the Logfire suffix/usage agree. The captured view shows the root investigation, model/tool operation counts and metadata, not a new trace generated for this talk.” |
 | 2:45–3:45 | Saved batch report, human labels, V1/V2 comparison and retrieval benchmark summary | “Fifty real investigations completed, but completion is not correctness. Twenty were reviewed by a human. Judge agreement improved on those same examples, and an honest retrieval comparison favored a simple keyword baseline on this small draft set. These measurements expose limitations rather than certify production quality.” |
 | 3:45–4:30 | Limitations and next opportunities | “The chat currently displays unverified answers: citation checks are informational. Human review, independent relevance judgments and held-out judge validation remain important. The system is read-only, has no enterprise integration or completed cloud deployment, and has not demonstrated customer savings. A next conversation can define evidence and approval requirements for further assessment.” |
 
@@ -27,9 +32,56 @@ answer. If a screen is unavailable, use the saved artifact and describe exactly
 what it establishes. Keep the spoken walkthrough under five minutes; detailed
 metrics and failure analysis can remain in supporting documents.
 
-## Primary scenario: S009, an approved synthetic input
+## Primary captured investigation: LNX-001
 
-Use the original question unchanged:
+The screenshot question is:
+
+> Password rotation failed for a privileged account on LNX-001 shortly after onboarding. Investigate the issue and check whether similar incidents were reported previously.
+
+This is the separate live Streamlit execution supplied for Step 3B. It is not
+S009, S006 or S020, and no new scenario/result was inserted into the frozen
+50-case journal. Screenshots 01–06 show successive views/crops of the same
+conversation; they are not a raw machine-readable response export or independent
+claim-by-claim validation. Keep all warning text and original answer wording.
+
+| Observed captured fact | LNX-001 demo run |
+|---|---|
+| Model | gpt-4o-mini |
+| Model requests / tool calls | 2 / 2 |
+| Actual tools | get_asset_details; search_past_tickets |
+| Documentation search | Not called |
+| Retrieved evidence IDs | LNX-001; TKT-001; TKT-003; TKT-004; TKT-015 |
+| Input / output / total tokens | 1,860 / 454 / 2,314 |
+| Estimated cost | $0.00055140 USD, not an invoice |
+| UI Logfire trace ID | `01a1e18cc5002c02491bcee2c117955d` |
+| Matching Logfire screenshot | Supplied crop shows suffix `17955d` and the same usage/cost/request/tool values |
+| Validation mode | validate_output=False; custom final-answer validation not enforced |
+| Informational checks | Issues found, including missing bracketed asset/ticket citations and an opening-disclaimer diagnostic |
+
+The Logfire screenshot displays a root investigation and grouped operations for
+one agent invocation, two model operations and the two tool executions. Its
+parent/child tree is not fully expanded. It shows a Nov 15 time, but no new UTC
+capture timestamp is inferred from that display. The visible trace suffix and
+usage corroborate the user's matching-trace provenance; no backend query or
+independent provider replay was performed.
+
+Explain the distinct evidence roles accurately: LNX-001 supplies current recorded
+state; the returned tickets supply historical cases with varying relevance.
+Documentation could supply technical guidance but **was not retrieved in this
+run**. Do not show a documentation record as if it had been returned here.
+The response discusses TKT-001 yet also says no prior incidents specifically
+aligned; preserve that ambiguity instead of endorsing it as verified history.
+A visible formatted disclaimer also coexists with a diagnostic asking for the
+exact opening disclaimer; screenshots do not establish the raw-format cause.
+
+Suggested narration: “This is genuine execution evidence, not a validated
+technical diagnosis. The model retrieved two kinds of evidence and the UI
+reported citation issues without rejecting the answer. An engineer must still
+assess relevance, missing diagnostic evidence and historical-versus-current claims.”
+
+## Historical reference only: S009 / WIN-003
+
+For an optional historical comparison, use the original saved question unchanged:
 
 > WIN-003 reports minimum password age rejection. What policy and schedule evidence should be reviewed before drawing a conclusion, and are there relevant historical cases?
 
@@ -87,9 +139,12 @@ or a new browser session's totals. A future model run can choose different tools
 return a different answer, use more/fewer tokens or fail within the existing
 six-request/eight-tool budgets.
 
-## Screens to use without a new investigation
+## Screens available without another investigation
 
-Prepare these manually only after approval to move beyond this planning step:
+Use [the seven supplied captures](demo_evidence_checklist.md#reviewed-capture-ledger)
+for the primary LNX-001 walkthrough. The following S009-only sequence remains
+an optional artifact-based comparison; no S009 console/dashboard screenshot has
+been supplied or marked captured. Do not confuse its values with the LNX-001 run:
 
 1. Show the [README architecture](../README.md#architecture) and existing app
    interface. The chat app does **not** load completed batch results into its
@@ -167,23 +222,19 @@ Evidence: [batch report](../evals/batch_report.md), [human labels](../evals/labe
 
 ## Readiness and claims boundary
 
-The saved S009 execution, reconstructed evidence, labels, metrics and trace ID
-already exist. **No screenshot or recording has been verified in the repository.**
-Manual screenshot capture and inspection of the existing Logfire trace are still
-needed for visual evidence. No additional paid call is necessary for this
-artifact-based 3–5-minute demo.
+All seven supplied PNGs are present, readable and reviewed; originals remain in
+ignored temp/ and the documentation copies are byte-identical. The separate
+LNX-001 chat and matching Logfire **captured view** now have visual evidence.
+S009's original dashboard visibility remains unverified; its saved IDs/usage and
+historical three-tool result still exist separately. No console/evaluation-report
+screenshots or presentation recording were supplied, and no more paid call is
+needed to present the existing evidence.
 
-A genuine completed **chat UI** screenshot can come from an already-open original
-session if one exists. If it does not, the chat cannot replay the journal: a fresh
-completed-chat screenshot would require a **separately authorized paid request**,
-and a newly traced run would additionally require authorization to create a trace.
-That is optional future capture work, not part of Step 3A and not authorized here.
-Use the console/records honestly instead of fabricating or injecting chat history.
-
+The captured LNX-001 answer is not independently verified as technically correct.
 Do not guarantee correct citations, use of all three tools, a confirmed cause,
-specific wording/latency/cost, dashboard retention or a successful future request.
-There is no enterprise authentication, customer data, live PAM integration,
-automated remediation, production readiness, held-out judge performance, measured
-customer savings or completed cloud deployment to demonstrate. Broader review,
-independent retrieval judgments and held-out validation are future opportunities;
-no new feature or Step 3B activity is included in this plan.
+specific future wording/latency/cost or perpetual dashboard retention. Current
+chat still uses validate_output=False. There is no enterprise authentication,
+customer data, live PAM integration, automated remediation, production readiness,
+held-out judge performance, measured customer savings or completed cloud deployment
+to demonstrate. Broader review, independent retrieval judgments and held-out
+validation remain future opportunities. No further milestone work is included.
